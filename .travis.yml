@@ -1,0 +1,23 @@
+language: python
+env:
+    TRAVISBUG="#1027"
+matrix:
+    exclude:
+        - env: TRAVISBUG="#1027"
+    include:
+        - python: "2.6"
+        - python: "2.7"
+        - python: "pypy"
+    allow_failures:
+        - python: "pypy"
+install:
+    - pip install nose
+    - pip install --use-mirrors .
+script:
+    - nosetests queuelib
+notifications:
+    irc:
+        channels:
+            - "irc.freenode.org#scrapy"
+        use_notice: true
+        skip_join: true
