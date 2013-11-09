@@ -33,7 +33,7 @@ class PriorityQueue(object):
             self.queues[priority] = self.qfactory(priority)
         q = self.queues[priority]
         q.push(obj) # this may fail (eg. serialization error)
-        if priority < self.curprio or self.curprio is None:
+        if self.curprio is None or priority < self.curprio:
             self.curprio = priority
 
     def pop(self):

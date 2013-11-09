@@ -58,7 +58,7 @@ class FifoDiskQueue(object):
             self.headf.close()
             self.headf = self._openchunk(hnum, 'ab+')
         self.info['size'] += 1
-        self.info['head'] = hnum, hpos
+        self.info['head'] = [hnum, hpos]
 
     def _openchunk(self, number, mode='r'):
         return open(os.path.join(self.path, 'q%05d' % number), mode)
@@ -82,7 +82,7 @@ class FifoDiskQueue(object):
             os.remove(self.tailf.name)
             self.tailf = self._openchunk(tnum)
         self.info['size'] -= 1
-        self.info['tail'] = tnum, tcnt, toffset
+        self.info['tail'] = [tnum, tcnt, toffset]
         return data
 
     def close(self):
