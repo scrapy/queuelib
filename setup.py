@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='queuelib',
-    version='1.0',
+    version='1.1',
     license='BSD',
     description='Collection of persistent (disk-based) queues',
     long_description=open('README.rst').read(),
