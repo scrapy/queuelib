@@ -10,7 +10,7 @@ framework`_ and stripped out on its own library.
 Requirements
 ============
 
-* Python 2.6
+* Python 2.7 or Python 3.3
 * no external library requirements
 
 Installation
