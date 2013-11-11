@@ -46,17 +46,17 @@ Here is an example usage of the FIFO queue::
 
     >>> from queuelib import FifoDiskQueue
     >>> q = FifoDiskQueue("queuefile")
-    >>> q.push('a')
-    >>> q.push('b')
-    >>> q.push('c')
+    >>> q.push(b'a')
+    >>> q.push(b'b')
+    >>> q.push(b'c')
     >>> q.pop()
     'c'
     >>> q.close()
     >>> q = FifoDiskQueue("queuefile")
     >>> q.pop()
-    'b'
+    b'b'
     >>> q.pop()
-    'a'
+    b'a'
     >>> q.pop()
     >>>
 
@@ -81,18 +81,18 @@ Then instantiate the Priority Queue with it::
 
 And use it::
 
-    >>> pq.push('a', 3)
-    >>> pq.push('b', 1)
-    >>> pq.push('c', 2)
-    >>> pq.push('d', 2)
+    >>> pq.push(b'a', 3)
+    >>> pq.push(b'b', 1)
+    >>> pq.push(b'c', 2)
+    >>> pq.push(b'd', 2)
     >>> pq.pop()
-    'b'
+    b'b'
     >>> pq.pop()
-    'c'
+    b'c'
     >>> pq.pop()
-    'd'
+    b'd'
     >>> pq.pop()
-    'a'
+    b'a'
 
 Mailing list
 ============
