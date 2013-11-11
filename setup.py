@@ -8,7 +8,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Scrapy project',
     author_email='info@scrapy.org',
-    url='http://github.com/scrapy/queuelib',
+    url='https://github.com/scrapy/queuelib',
     packages=['queuelib', 'queuelib.tests'],
     platforms=['Any'],
     classifiers=[
