@@ -17,8 +17,6 @@ Requirements
 * no external library requirements
 
 Installation
-
-Installation
 ============
 
 You can install Queuelib either via the Python Package Index (PyPI) or from
