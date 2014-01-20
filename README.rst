@@ -48,13 +48,13 @@ Here is an example usage of the FIFO queue::
     >>> q.push(b'b')
     >>> q.push(b'c')
     >>> q.pop()
-    'c'
+    b'a'
     >>> q.close()
     >>> q = FifoDiskQueue("queuefile")
     >>> q.pop()
     b'b'
     >>> q.pop()
-    b'a'
+    b'c'
     >>> q.pop()
     >>>
 
