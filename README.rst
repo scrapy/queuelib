@@ -67,15 +67,15 @@ PriorityQueue
 A discrete-priority queue implemented by combining multiple FIFO/LIFO queues
 (one per priority).
 
-First, select the type of QUEUE (FIFO or LIFO)::
+First, select the type of queue to be used per priority (FIFO or LIFO)::
 
     >>> from queuelib import FifoDiskQueue
-    >>> q = FifoDiskQueue("somedir")
+    >>> qfactory = lambda priority: FifoDiskQueue('queue-dir-%s' % priority)
 
 Then instantiate the Priority Queue with it::
 
     >>> from queuelib import PriorityQueue
-    >>> pq = PriorityQueue(q)
+    >>> pq = PriorityQueue(qfactory)
 
 And use it::
 
