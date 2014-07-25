@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name='queuelib',
@@ -9,7 +9,7 @@ setup(
     author='Scrapy project',
     author_email='info@scrapy.org',
     url='https://github.com/scrapy/queuelib',
-    packages=['queuelib', 'queuelib.tests'],
+    packages=find_packages(),
     platforms=['Any'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
