@@ -17,7 +17,7 @@ notifications:
     - irc.freenode.org#scrapy
 deploy:
   provider: pypi
-  distributions: bdist_wheel sdist
+  distributions: sdist bdist_wheel
   user: scrapy
   password:
     secure: UnOnSBV254I8w44LXAwJgY3I1+Jnc+Oq7RlmYSfm6oq9qcWGrtXrPjFh6ZKV7RcrFDwFo4MtqI1E14X3DhPTmkTtDxsadbWESShE5a1SRYwQactRDW8QBQvwT8JEJy02GUAduoOznBQod7CegiccOygrAW1ULj+Fr72YVPN8tfI=
@@ -25,3 +25,4 @@ deploy:
     tags: true
     all_branches: true
     repo: scrapy/queuelib
+    condition: "$TOXENV == py27"
