@@ -53,13 +53,10 @@ class FifoDiskQueue(object):
         hpos += 1
         szhdr = struct.pack(self.szhdr_format, len(string))
         os.write(self.headf.fileno(), szhdr + string)
-        print self.headf.tell()
-        print self.chunksize
         if self.headf.tell() >= self.chunksize: #roll to next chunk
             hpos = 0
             hnum += 1
             self.headf.close()
-            print "rolling"
             self.headf = self._openchunk(hnum, 'ab+')
         self.info['size'] += 1
         self.info['head'] = [hnum, self.headf.tell()]
