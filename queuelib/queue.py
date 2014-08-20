@@ -53,13 +53,13 @@ class FifoDiskQueue(object):
         hpos += 1
         szhdr = struct.pack(self.szhdr_format, len(string))
         os.write(self.headf.fileno(), szhdr + string)
-        if hpos == self.chunksize:
+        if self.headf.tell() >= self.chunksize:
             hpos = 0
             hnum += 1
             self.headf.close()
             self.headf = self._openchunk(hnum, 'ab+')
         self.info['size'] += 1
-        self.info['head'] = [hnum, hpos]
+        self.info['head'] = [hnum, self.headf.tell()]
         
         if self.syncAll==True:
             self._saveinfo(self.info)
