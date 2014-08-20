@@ -142,9 +142,6 @@ class FifoDiskQueueTest(FifoMemoryQueueTest):
             q.push(x)
 
         chunks = glob.glob(os.path.join(self.qdir, 'q*'))
-        print len(chunks)
-        print self.chunksize
-        print len(q)
         self.assertEqual(len(chunks), 5 // self.chunksize + 1)
         for x in values:
             q.pop()
