@@ -37,10 +37,11 @@ class FifoDiskQueue(object):
     szhdr_format = ">L"
     szhdr_size = struct.calcsize(szhdr_format)
 
-    def __init__(self, path, chunksize=100000):
+    def __init__(self, path, chunksize=100000, syncAll=False):
         self.path = path
         if not os.path.exists(path):
             os.makedirs(path)
+        self.syncAll = syncAll
         self.info = self._loadinfo(chunksize)
         self.chunksize = self.info['chunksize']
         self.headf = self._openchunk(self.info['head'][0], 'ab+')
@@ -59,6 +60,9 @@ class FifoDiskQueue(object):
             self.headf = self._openchunk(hnum, 'ab+')
         self.info['size'] += 1
         self.info['head'] = [hnum, hpos]
+        
+        if self.syncAll==True:
+            self._saveinfo(self.info)
 
     def _openchunk(self, number, mode='r'):
         return open(os.path.join(self.path, 'q%05d' % number), mode)
@@ -83,6 +87,9 @@ class FifoDiskQueue(object):
             self.tailf = self._openchunk(tnum)
         self.info['size'] -= 1
         self.info['tail'] = [tnum, tcnt, toffset]
+        if self.syncAll==True:
+            self._saveinfo(self.info)
+        
         return data
 
     def close(self):
