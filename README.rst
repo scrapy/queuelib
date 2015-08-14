@@ -5,6 +5,11 @@ queuelib
 .. image:: https://secure.travis-ci.org/scrapy/queuelib.png?branch=master
    :target: http://travis-ci.org/scrapy/queuelib
 
+.. image:: https://img.shields.io/codecov/c/github/scrapy/queuelib/master.svg
+   :target: http://codecov.io/github/scrapy/queuelib?branch=master
+   :alt: Coverage report
+
+
 Queuelib is a collection of persistent (disk-based) queues for Python.
 
 Queuelib goals are speed and simplicity. It was originally part of the `Scrapy

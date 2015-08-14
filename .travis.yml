@@ -7,8 +7,9 @@ env:
 - TOXENV=py34
 install:
 - "./.travis-workarounds.sh"
-- pip install tox
+- pip install -U tox codecov
 script: tox
+after_success: codecov
 notifications:
   irc:
     use_notice: true
