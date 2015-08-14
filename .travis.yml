@@ -1,21 +1,24 @@
 language: python
 python: 2.7
+sudo: false
 env:
 - TOXENV=py27
 - TOXENV=pypy
 - TOXENV=py33
 - TOXENV=py34
+
 install:
-- "./.travis-workarounds.sh"
-- pip install -U tox codecov
+- pip install -U tox twine wheel codecov
 script: tox
 after_success: codecov
+
 notifications:
   irc:
     use_notice: true
     skip_join: true
     channels:
     - irc.freenode.org#scrapy
+
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
@@ -27,3 +30,7 @@ deploy:
     all_branches: true
     repo: scrapy/queuelib
     condition: "$TOXENV == py27"
+
+cache:
+  directories:
+    - $HOME/.cache/pip
