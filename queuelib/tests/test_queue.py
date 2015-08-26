@@ -112,6 +112,15 @@ class FifoDiskQueueTest(FifoMemoryQueueTest):
     def queue(self):
         return FifoDiskQueue(self.qdir, chunksize=self.chunksize)
 
+    def test_text_in_windows(self):
+        e1 = b'\r\n'
+        q = self.queue()
+        q.push(e1)
+        q.close()
+        q = self.queue()
+        e2 = q.pop()
+        self.assertEqual(e1, e2)
+
     def test_close_open(self):
         """Test closing and re-opening keeps state"""
         q = self.queue()

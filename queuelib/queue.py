@@ -60,7 +60,7 @@ class FifoDiskQueue(object):
         self.info['size'] += 1
         self.info['head'] = [hnum, hpos]
 
-    def _openchunk(self, number, mode='r'):
+    def _openchunk(self, number, mode='rb'):
         return open(os.path.join(self.path, 'q%05d' % number), mode)
 
     def pop(self):
