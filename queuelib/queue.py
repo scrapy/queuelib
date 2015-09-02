@@ -1,7 +1,8 @@
 import os
-import struct
 import glob
 import json
+import struct
+import sqlite3
 from collections import deque
 
 
@@ -171,3 +172,51 @@ class LifoDiskQueue(object):
 
     def __len__(self):
         return self.size
+
+
+class FifoSQLiteQueue(object):
+
+    _sql_create = (
+        'CREATE TABLE IF NOT EXISTS queue '
+        '(id INTEGER PRIMARY KEY AUTOINCREMENT, item BLOB)'
+    )
+    _sql_size = 'SELECT COUNT(*) FROM queue'
+    _sql_push = 'INSERT INTO queue (item) VALUES (?)'
+    _sql_pop = 'SELECT id, item FROM queue ORDER BY id LIMIT 1'
+    _sql_del = 'DELETE FROM queue WHERE id = ?'
+
+    def __init__(self, path):
+        self._path = os.path.abspath(path)
+        self._db = sqlite3.Connection(self._path, timeout=60)
+        self._db.text_factory = bytes
+        with self._db as conn:
+            conn.execute(self._sql_create)
+
+    def push(self, item):
+        with self._db as conn:
+            conn.execute(self._sql_push, (item,))
+
+    def pop(self):
+        with self._db as conn:
+            for id_, item in conn.execute(self._sql_pop):
+                conn.execute(self._sql_del, (id_,))
+                return item
+
+    def close(self):
+        size = len(self)
+        self._db.close()
+        if not size:
+            os.remove(self._path)
+
+    def __len__(self):
+        with self._db as conn:
+            return next(conn.execute(self._sql_size))[0]
+
+
+class LifoSQLiteQueue(FifoSQLiteQueue):
+
+    _sql_pop = 'SELECT id, item FROM queue ORDER BY id DESC LIMIT 1'
+
+
+#FifoDiskQueue = FifoSQLiteQueue  # noqa
+#LifoDiskQueue = LifoSQLiteQueue  # noqa

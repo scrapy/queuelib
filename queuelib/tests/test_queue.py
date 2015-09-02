@@ -1,7 +1,10 @@
 import os
 import glob
 
-from queuelib.queue import FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue
+from queuelib.queue import (
+    FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue,
+    FifoSQLiteQueue, LifoSQLiteQueue,
+)
 from queuelib.tests import QueuelibTestCase
 
 
@@ -220,5 +223,13 @@ class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
         assert os.path.getsize(self.qpath), size
 
 
+class FifoSQLiteQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+
+    def queue(self):
+        return FifoSQLiteQueue(self.qpath)
 
 
+class LifoSQLiteQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+
+    def queue(self):
+        return LifoSQLiteQueue(self.qpath)
