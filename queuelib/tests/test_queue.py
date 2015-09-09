@@ -1,5 +1,6 @@
 import os
 import glob
+import pytest
 
 from queuelib.queue import (
     FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue,
@@ -109,6 +110,8 @@ class PersistentTestMixin(object):
 
     chunksize = 100000
 
+    @pytest.mark.xfail(reason="Reenable once Scrapy.squeues stop"
+                       " extending from queuelib testsuite")
     def test_non_bytes_raises_typeerror(self):
         q = self.queue()
         self.assertRaises(TypeError, q.push, 0)
