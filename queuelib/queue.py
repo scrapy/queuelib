@@ -49,6 +49,8 @@ class FifoDiskQueue(object):
         os.lseek(self.tailf.fileno(), self.info['tail'][2], os.SEEK_SET)
 
     def push(self, string):
+        if not isinstance(string, bytes):
+            raise TypeError('Unsupported type: {}'.format(type(string).__name__))
         hnum, hpos = self.info['head']
         hpos += 1
         szhdr = struct.pack(self.szhdr_format, len(string))
@@ -145,6 +147,8 @@ class LifoDiskQueue(object):
             self.size = 0
 
     def push(self, string):
+        if not isinstance(string, bytes):
+            raise TypeError('Unsupported type: {}'.format(type(string).__name__))
         self.f.write(string)
         ssize = struct.pack(self.SIZE_FORMAT, len(string))
         self.f.write(ssize)
@@ -193,6 +197,9 @@ class FifoSQLiteQueue(object):
             conn.execute(self._sql_create)
 
     def push(self, item):
+        if not isinstance(item, bytes):
+            raise TypeError('Unsupported type: {}'.format(type(item).__name__))
+
         with self._db as conn:
             conn.execute(self._sql_push, (item,))
 

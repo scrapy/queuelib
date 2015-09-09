@@ -109,6 +109,13 @@ class PersistentTestMixin(object):
 
     chunksize = 100000
 
+    def test_non_bytes_raises_typeerror(self):
+        q = self.queue()
+        self.assertRaises(TypeError, q.push, 0)
+        self.assertRaises(TypeError, q.push, u'')
+        self.assertRaises(TypeError, q.push, None)
+        self.assertRaises(TypeError, q.push, lambda x: x)
+
     def test_text_in_windows(self):
         e1 = b'\r\n'
         q = self.queue()
