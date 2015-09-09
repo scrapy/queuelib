@@ -1,3 +1,4 @@
+import os
 from queuelib.pqueue import PriorityQueue
 from queuelib.queue import FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue
 from queuelib.tests import QueuelibTestCase
@@ -155,13 +156,27 @@ class DiskTestMixin(object):
         self.assertEqual(self.q.pop(), None)
         self.assertEqual(self.q.close(), [])
 
+    def test_reopen_with_prio(self):
+        q1 = PriorityQueue(self.qfactory)
+        q1.push(b'a', 3)
+        q1.push(b'b', 1)
+        q1.push(b'c', 2)
+        active = q1.close()
+        q2 = PriorityQueue(self.qfactory, startprios=active)
+        self.assertEqual(q2.pop(), b'b')
+        self.assertEqual(q2.pop(), b'c')
+        self.assertEqual(q2.pop(), b'a')
+        self.assertEqual(q2.close(), [])
+
 
 class FifoDiskPriorityQueueTest(FifoTestMixin, DiskTestMixin, base.PQueueTestBase):
 
     def qfactory(self, prio):
-        return track_closed(FifoDiskQueue)(self.mktemp())
+        path = os.path.join(self.qdir, str(prio))
+        return track_closed(FifoDiskQueue)(path)
 
 class LifoDiskPriorityQueueTest(LifoTestMixin, DiskTestMixin, base.PQueueTestBase):
 
     def qfactory(self, prio):
-        return track_closed(LifoDiskQueue)(self.mktemp())
+        path = os.path.join(self.qdir, str(prio))
+        return track_closed(LifoDiskQueue)(path)
