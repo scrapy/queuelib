@@ -178,6 +178,15 @@ class FifoDiskPriorityQueueTest(FifoTestMixin, DiskTestMixin, base.PQueueTestBas
         path = os.path.join(self.qdir, str(prio))
         return track_closed(FifoDiskQueue)(path)
 
+    def test__too_many_open_files(self):
+        q1 = PriorityQueue(self.qfactory)
+        last = ''
+        for i in xrange(0,200):
+          last = str(i)
+          q1.push(last, i)
+        
+        self.assertEqual(q1.pop(), str(0))
+
 
 class LifoDiskPriorityQueueTest(LifoTestMixin, DiskTestMixin, base.PQueueTestBase):
 
