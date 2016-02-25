@@ -31,6 +31,53 @@ class LifoMemoryQueue(FifoMemoryQueue):
         q = self.q
         return q.pop() if q else None
 
+class ObtainFile(object):
+    """handle file resources"""
+
+    FILES = []
+    MAX_FILES = 100
+    LOOKUP = {}
+
+    def __init__(self, path, number, mode='ab+'):
+       self.path = path
+       self.number = number
+       self.mode = mode
+
+    def obtain(self):
+       number = self.number
+       mode = self.mode
+
+       if self.LOOKUP.has_key(number):
+         return self.LOOKUP[number]
+       else:
+         if len(self.LOOKUP) + 1 > self.MAX_FILES:
+            n = self.FILES.pop(0)
+            f = self.LOOKUP[n]
+            del self.LOOKUP[n]
+            f.close()
+
+         f = open(os.path.join(self.path, 'q%05d' % number), mode)
+         self.LOOKUP[number] = f
+         self.FILES.append(number)
+         return f
+
+    def fileno(self):
+       return self.obtain().fileno()
+
+    def close_self(self):
+       n = self.number
+       if self.LOOKUP.has_key(n):
+           self.LOOKUP[n].close()
+           del self.LOOKUP[n]
+           self.FILES = [f for f in self.FILES if f != n]
+
+    def close(self):
+       self.close_self()
+
+    def write(self, string):
+        f = self.obtain()
+        os.write(f.fileno(), string)
+
 
 class FifoDiskQueue(object):
     """Persistent FIFO queue."""
@@ -44,8 +91,8 @@ class FifoDiskQueue(object):
             os.makedirs(path)
         self.info = self._loadinfo(chunksize)
         self.chunksize = self.info['chunksize']
-        self.headf = self._openchunk(self.info['head'][0], 'ab+')
-        self.tailf = self._openchunk(self.info['tail'][0])
+        self.headf = ObtainFile(self.path, self.info['head'][0], 'ab+')
+        self.tailf = ObtainFile(self.path, self.info['tail'][0])
         os.lseek(self.tailf.fileno(), self.info['tail'][2], os.SEEK_SET)
 
     def push(self, string):
@@ -54,17 +101,16 @@ class FifoDiskQueue(object):
         hnum, hpos = self.info['head']
         hpos += 1
         szhdr = struct.pack(self.szhdr_format, len(string))
-        os.write(self.headf.fileno(), szhdr + string)
+        self.headf.write(szhdr + string)
+
         if hpos == self.chunksize:
             hpos = 0
             hnum += 1
             self.headf.close()
-            self.headf = self._openchunk(hnum, 'ab+')
+            self.headf = ObtainFile(self.path, hnum, 'ab+')
+
         self.info['size'] += 1
         self.info['head'] = [hnum, hpos]
-
-    def _openchunk(self, number, mode='rb'):
-        return open(os.path.join(self.path, 'q%05d' % number), mode)
 
     def pop(self):
         tnum, tcnt, toffset = self.info['tail']
@@ -81,9 +127,9 @@ class FifoDiskQueue(object):
         if tcnt == self.chunksize and tnum <= self.info['head'][0]:
             tcnt = toffset = 0
             tnum += 1
+            os.remove(self.tailf.obtain().name)
             self.tailf.close()
-            os.remove(self.tailf.name)
-            self.tailf = self._openchunk(tnum)
+            self.tailf = ObtainFile(self.path, tnum)
         self.info['size'] -= 1
         self.info['tail'] = [tnum, tcnt, toffset]
         return data
@@ -120,12 +166,12 @@ class FifoDiskQueue(object):
         return os.path.join(self.path, 'info.json')
 
     def _cleanup(self):
+        print "clean", self.path
         for x in glob.glob(os.path.join(self.path, 'q*')):
             os.remove(x)
         os.remove(os.path.join(self.path, 'info.json'))
         if not os.listdir(self.path):
             os.rmdir(self.path)
-
 
 
 class LifoDiskQueue(object):
