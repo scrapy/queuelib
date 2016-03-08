@@ -155,7 +155,7 @@ class LifoDiskQueue(object):
             ssize = struct.pack(self.SIZE_FORMAT, len(string))
             self.f.write(ssize)
             self.f.flush()
-        except:
+        except IOError:
             self.f.seek(pos)
             self.f.truncate()
             raise
