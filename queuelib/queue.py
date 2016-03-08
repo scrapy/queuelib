@@ -149,9 +149,16 @@ class LifoDiskQueue(object):
     def push(self, string):
         if not isinstance(string, bytes):
             raise TypeError('Unsupported type: {}'.format(type(string).__name__))
-        self.f.write(string)
-        ssize = struct.pack(self.SIZE_FORMAT, len(string))
-        self.f.write(ssize)
+        pos = self.f.tell()
+        try:
+            self.f.write(string)
+            ssize = struct.pack(self.SIZE_FORMAT, len(string))
+            self.f.write(ssize)
+            self.f.flush()
+        except:
+            self.f.seek(pos)
+            self.f.truncate()
+            raise
         self.size += 1
 
     def pop(self):
