@@ -15,6 +15,8 @@ Queuelib is a collection of persistent (disk-based) queues for Python.
 Queuelib goals are speed and simplicity. It was originally part of the `Scrapy
 framework`_ and stripped out on its own library.
 
+Note: Queuelib isn't thread-safe.
+
 Requirements
 ============
 
