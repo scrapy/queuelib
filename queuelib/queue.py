@@ -4,6 +4,7 @@ import json
 import struct
 import sqlite3
 from collections import deque
+from os.path import isfile, join
 
 
 class FifoMemoryQueue(object):
@@ -38,11 +39,11 @@ class FifoDiskQueue(object):
     szhdr_format = ">L"
     szhdr_size = struct.calcsize(szhdr_format)
 
-    def __init__(self, path, chunksize=100000):
+    def __init__(self, path, chunksize=100, reset=False):
         self.path = path
         if not os.path.exists(path):
             os.makedirs(path)
-        self.info = self._loadinfo(chunksize)
+        self.info = self._loadinfo(chunksize, path, reset)
         self.chunksize = self.info['chunksize']
         self.headf = self._openchunk(self.info['head'][0], 'ab+')
         self.tailf = self._openchunk(self.info['tail'][0])
@@ -98,11 +99,18 @@ class FifoDiskQueue(object):
     def __len__(self):
         return self.info['size']
 
-    def _loadinfo(self, chunksize):
+    def _loadinfo(self, chunksize ,path=None,reset=False):
         infopath = self._infopath()
         if os.path.exists(infopath):
             with open(infopath) as f:
                 info = json.load(f)
+            onlyFiles = sorted([f for f in os.listdir(path) if isfile(join(path, f))])
+            t = int(onlyFiles[1][1:])
+            h = int(onlyFiles[-1][1:])
+            info['tail'][0] = t
+            if reset:
+                info['tail'][2] = 0
+            info['head'][0] = h
         else:
             info = {
                 'chunksize': chunksize,
