@@ -99,6 +99,34 @@ And use it::
     >>> pq.pop()
     b'a'
 
+RoundRobinQueue
+===============
+
+The `RoundRobinQueue` has nearly the same interface and implementation as
+the `PriorityQueue` except that each element must be pushed with a (mandatory)
+key.  Popping from the queue cycles through the keys "round robin"
+
+Instantiate the Round Robin Queue similarly to the Priority Queue::
+
+    >>> from queuelib import RoundRobinQueue
+    >>> rr = RoundRobinQueue(qfactory)
+
+And use it::
+
+    >>> rr.push(b'a', '1')
+    >>> rr.push(b'b', '1')
+    >>> rr.push(b'c', '2')
+    >>> rr.push(b'd', '2')
+    >>> rr.pop()
+    b'a'
+    >>> rr.pop()
+    b'c'
+    >>> rr.pop()
+    b'b'
+    >>> rr.pop()
+    b'd'
+
+
 Mailing list
 ============
 
