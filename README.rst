@@ -102,9 +102,9 @@ And use it::
 RoundRobinQueue
 ===============
 
-The `RoundRobinQueue` has nearly the same interface and implementation as
-the `PriorityQueue` except that each element must be pushed with a (mandatory)
-key.  Popping from the queue cycles through the keys "round robin"
+Has nearly the same interface and implementation as a Priority Queue except
+that each element must be pushed with a (mandatory) key.  Popping from the
+queue cycles through the keys "round robin".
 
 Instantiate the Round Robin Queue similarly to the Priority Queue::
 
