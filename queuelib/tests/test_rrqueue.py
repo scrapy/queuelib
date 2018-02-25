@@ -111,7 +111,6 @@ class DiskTestMixin(object):
         self.q.push(b'c', '2')
         self.assertEqual(self.q.pop(), b'a')
         self.assertEqual(self.q.pop(), b'b')
-        print self.q.queues
         self.assertEqual(self.q.pop(), b'c')
         self.assertEqual(self.q.pop(), None)
         self.assertEqual(self.q.close(), [])
