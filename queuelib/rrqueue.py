@@ -20,13 +20,13 @@ class RoundRobinQueue(object):
     for a round robin
     """
 
-    def __init__(self, qfactory, start_keys=()):
+    def __init__(self, qfactory, start_domains=()):
         self.queues = {}
         self.qfactory = qfactory
-        for key in start_keys:
+        for key in start_domains:
             self.queues[key] = self.qfactory(key)
 
-        self.key_queue = deque(start_keys)
+        self.key_queue = deque(start_domains)
 
     def push(self, obj, key):
         if key not in self.key_queue:
