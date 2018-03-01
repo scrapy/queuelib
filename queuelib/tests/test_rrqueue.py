@@ -9,7 +9,7 @@ from queuelib.tests import (QueuelibTestCase, track_closed)
 
 # hack to prevent py.test from discovering base test class
 class base:
-    class PQueueTestBase(QueuelibTestCase):
+    class RRQueueTestBase(QueuelibTestCase):
 
         def setUp(self):
             QueuelibTestCase.setUp(self)
@@ -78,13 +78,13 @@ class LifoTestMixin(object):
         self.assertEqual(self.q.pop(), None)
 
 
-class FifoMemoryRRQueueTest(FifoTestMixin, base.PQueueTestBase):
+class FifoMemoryRRQueueTest(FifoTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         return track_closed(FifoMemoryQueue)()
 
 
-class LifoMemoryRRQueueTest(LifoTestMixin, base.PQueueTestBase):
+class LifoMemoryRRQueueTest(LifoTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         return track_closed(LifoMemoryQueue)()
@@ -116,28 +116,28 @@ class DiskTestMixin(object):
         self.assertEqual(self.q.close(), [])
 
 
-class FifoDiskRRQueueTest(FifoTestMixin, DiskTestMixin, base.PQueueTestBase):
+class FifoDiskRRQueueTest(FifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskRRQueueTest(LifoTestMixin, DiskTestMixin, base.PQueueTestBase):
+class LifoDiskRRQueueTest(LifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLiteRRQueueTest(FifoTestMixin, DiskTestMixin, base.PQueueTestBase):
+class FifoSQLiteRRQueueTest(FifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLiteRRQueueTest(LifoTestMixin, DiskTestMixin, base.PQueueTestBase):
+class LifoSQLiteRRQueueTest(LifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
 
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
