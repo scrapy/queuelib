@@ -4,23 +4,7 @@ from queuelib.queue import (
     FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue,
     FifoSQLiteQueue, LifoSQLiteQueue,
 )
-from queuelib.tests import QueuelibTestCase
-
-
-def track_closed(cls):
-    """Wraps a queue class to track down if close() method was called"""
-
-    class TrackingClosed(cls):
-
-        def __init__(self, *a, **kw):
-            super(TrackingClosed, self).__init__(*a, **kw)
-            self.closed = False
-
-        def close(self):
-            super(TrackingClosed, self).close()
-            self.closed = True
-
-    return TrackingClosed
+from queuelib.tests import (QueuelibTestCase, track_closed)
 
 
 # hack to prevent py.test from discovering base test class
