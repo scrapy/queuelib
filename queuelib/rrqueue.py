@@ -11,8 +11,8 @@ class RoundRobinQueue(object):
     instantiate a new (internal) queue when a new key is allocated. The
     qfactory function is called with the key number as first and only
     argument.
-    start_keys is a sequence of domains to start with. If the queue was
-    previously closed leaving some domain buckets non-empty, those domains
+    start_keys is a sequence of keys to start with. If the queue was
+    previously closed leaving some key buckets non-empty, those keys
     should be passed in start_keys.
 
     The queue maintains a fifo queue of keys.  The key that went last is
@@ -20,13 +20,13 @@ class RoundRobinQueue(object):
     for a round robin
     """
 
-    def __init__(self, qfactory, start_domains=()):
+    def __init__(self, qfactory, start_keys=()):
         self.queues = {}
         self.qfactory = qfactory
-        for key in start_domains:
+        for key in start_keys:
             self.queues[key] = self.qfactory(key)
 
-        self.key_queue = deque(start_domains)
+        self.key_queue = deque(start_keys)
 
     def push(self, obj, key):
         if key not in self.key_queue:
