@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='queuelib',
-    version='1.4.2',
+    version='1.5.0',
     license='BSD',
     description='Collection of persistent (disk-based) queues',
     long_description=open('README.rst').read(),
