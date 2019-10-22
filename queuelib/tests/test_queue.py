@@ -1,6 +1,7 @@
 import os
 import glob
 import pytest
+from shutil import rmtree
 
 from queuelib.queue import (
     FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue,
@@ -166,6 +167,27 @@ class PersistentTestMixin(object):
         assert not os.path.exists(self.qpath)
 
 
+class DirectoryTestMixin(object):
+
+    def test_cleanup_unclean(self):
+        """Test queue dir is not removed if it contains unexpected content"""
+        q = self.queue()
+        values = [b'0', b'1', b'2', b'3', b'4']
+        assert os.path.exists(self.qpath)
+        for x in values:
+            q.push(x)
+
+        unexpected_file_path = os.path.join(self.qpath, 'unexpected')
+        open(unexpected_file_path, 'a').close()
+
+        for x in values:
+            q.pop()
+        q.close()
+        assert os.path.exists(self.qpath)
+        assert os.path.exists(unexpected_file_path)
+        rmtree(self.qpath)
+
+
 class FifoMemoryQueueTest(FifoTestMixin, QueuelibTestCase):
 
     def queue(self):
@@ -178,7 +200,7 @@ class LifoMemoryQueueTest(LifoTestMixin, QueuelibTestCase):
         return LifoMemoryQueue()
 
 
-class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+class FifoDiskQueueTest(FifoTestMixin, DirectoryTestMixin, PersistentTestMixin, QueuelibTestCase):
 
     def queue(self):
         return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
