@@ -1,0 +1,17 @@
+[MASTER]
+persistent=no
+
+[MESSAGES CONTROL]
+disable=duplicate-code,
+        inconsistent-return-statements,
+        invalid-name,
+        len-as-condition,
+        missing-class-docstring,
+        missing-final-newline,
+        missing-function-docstring,
+        missing-module-docstring,
+        multiple-imports,
+        no-member,
+        no-self-use,
+        too-few-public-methods,
+        useless-object-inheritance  # Required for Python 2 support
