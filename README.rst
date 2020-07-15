@@ -18,7 +18,7 @@ sorted by priority and queues that are emptied in a round-robin_ fashion.
 
 .. note:: Queuelib collections are not thread-safe.
 
-Queuelib supports Python 2.7 and 3.3+, and has minimal dependencies.
+Queuelib supports Python 2.7 and 3.5+, and has no dependencies.
 
 .. _queues: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
 .. _round-robin: https://en.wikipedia.org/wiki/Round-robin_scheduling
