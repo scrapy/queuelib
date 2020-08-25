@@ -19,10 +19,10 @@ class base:
             raise NotImplementedError
 
         def test_len_nonzero(self):
-            assert not self.q
+            self.assertFalse(self.q)
             self.assertEqual(len(self.q), 0)
             self.q.push(b'a', 3)
-            assert self.q
+            self.assertTrue(self.q)
             self.q.push(b'b', 1)
             self.q.push(b'c', 2)
             self.q.push(b'd', 1)
@@ -31,7 +31,7 @@ class base:
             self.q.pop()
             self.q.pop()
             self.q.pop()
-            assert not self.q
+            self.assertFalse(self.q)
             self.assertEqual(len(self.q), 0)
 
         def test_close(self):
@@ -41,7 +41,8 @@ class base:
             self.q.push(b'd', 1)
             iqueues = self.q.queues.values()
             self.assertEqual(sorted(self.q.close()), [1, 2, 3])
-            assert all(q.closed for q in iqueues)
+            for q in iqueues:
+                self.assertTrue(q.closed)
 
         def test_close_return_active(self):
             self.q.push(b'b', 1)
@@ -57,7 +58,7 @@ class base:
             p1queue = self.q.queues[1]
             self.assertEqual(self.q.pop(), b'b')
             self.q.close()
-            assert p1queue.closed
+            self.assertTrue(p1queue.closed)
 
 
 class FifoTestMixin(object):

@@ -17,12 +17,12 @@ class BaseQueueTest(object):
     def test_empty(self):
         """Empty queue test"""
         q = self.queue()
-        assert q.pop() is None
+        self.assertIs(q.pop(), None)
 
     def test_single_pushpop(self):
         q = self.queue()
         q.push(b'a')
-        assert q.pop() == b'a'
+        self.assertEqual(q.pop(), b'a')
 
     def test_binary_element(self):
         elem = (
@@ -34,7 +34,7 @@ class BaseQueueTest(object):
         )
         q = self.queue()
         q.push(elem)
-        assert q.pop() == elem
+        self.assertEqual(q.pop(), elem)
 
     def test_len(self):
         q = self.queue()
@@ -149,21 +149,21 @@ class PersistentTestMixin(object):
         del q
 
         q = self.queue()
-        assert q.pop() is not None
+        self.assertIsNot(q.pop(), None)
         self.assertEqual(len(q), 0)
 
     def test_cleanup(self):
         """Test queue dir is removed if queue is empty"""
         q = self.queue()
         values = [b'0', b'1', b'2', b'3', b'4']
-        assert os.path.exists(self.qpath)
+        self.assertTrue(os.path.exists(self.qpath))
         for x in values:
             q.push(x)
 
         for x in values:
             q.pop()
         q.close()
-        assert not os.path.exists(self.qpath)
+        self.assertFalse(os.path.exists(self.qpath))
 
 
 class FifoMemoryQueueTest(FifoTestMixin, QueuelibTestCase):
@@ -230,7 +230,7 @@ class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
         q = self.queue()
         q.pop()
         q.close()
-        assert os.path.getsize(self.qpath), size
+        self.assertTrue(os.path.getsize(self.qpath), size)
 
 
 class FifoSQLiteQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
