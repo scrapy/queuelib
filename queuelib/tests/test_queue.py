@@ -49,6 +49,14 @@ class BaseQueueTest(object):
         q.pop()
         self.assertEqual(len(q), 0)
 
+    def test_peek_one_element(self):
+        q = self.queue()
+        self.assertIsNone(q.peek())
+        q.push(b'a')
+        self.assertEqual(q.peek(), b'a')
+        self.assertEqual(q.pop(), b'a')
+        self.assertIsNone(q.peek())
+
 
 class FifoTestMixin(BaseQueueTest):
 
@@ -77,6 +85,23 @@ class FifoTestMixin(BaseQueueTest):
         self.assertEqual(q.pop(), b'd')
         self.assertEqual(q.pop(), b'e')
 
+    def test_peek_fifo(self):
+        q = self.queue()
+        self.assertIsNone(q.peek())
+        q.push(b'a')
+        q.push(b'b')
+        q.push(b'c')
+        self.assertEqual(q.peek(), b'a')
+        self.assertEqual(q.peek(), b'a')
+        self.assertEqual(q.pop(), b'a')
+        self.assertEqual(q.peek(), b'b')
+        self.assertEqual(q.peek(), b'b')
+        self.assertEqual(q.pop(), b'b')
+        self.assertEqual(q.peek(), b'c')
+        self.assertEqual(q.peek(), b'c')
+        self.assertEqual(q.pop(), b'c')
+        self.assertIsNone(q.peek())
+
 
 class LifoTestMixin(BaseQueueTest):
 
@@ -104,6 +129,23 @@ class LifoTestMixin(BaseQueueTest):
         self.assertEqual(q.pop(), b'e')
         self.assertEqual(q.pop(), b'b')
         self.assertEqual(q.pop(), b'a')
+
+    def test_peek_lifo(self):
+        q = self.queue()
+        self.assertIsNone(q.peek())
+        q.push(b'a')
+        q.push(b'b')
+        q.push(b'c')
+        self.assertEqual(q.peek(), b'c')
+        self.assertEqual(q.peek(), b'c')
+        self.assertEqual(q.pop(), b'c')
+        self.assertEqual(q.peek(), b'b')
+        self.assertEqual(q.peek(), b'b')
+        self.assertEqual(q.pop(), b'b')
+        self.assertEqual(q.peek(), b'a')
+        self.assertEqual(q.peek(), b'a')
+        self.assertEqual(q.pop(), b'a')
+        self.assertIsNone(q.peek())
 
 
 class PersistentTestMixin(object):
