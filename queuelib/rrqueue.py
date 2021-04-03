@@ -1,6 +1,6 @@
 from collections import deque
 
-class RoundRobinQueue(object):
+class RoundRobinQueue:
     """A round robin queue implemented using multiple internal queues (typically,
     FIFO queues). The internal queue must implement the following methods:
         * push(obj)

@@ -51,7 +51,7 @@ class base:
             self.assertEqual(sorted(self.q.close()), ['2', '3'])
 
 
-class FifoTestMixin(object):
+class FifoTestMixin:
     def test_push_pop_key(self):
         self.q.push(b'a', '1')
         self.q.push(b'b', '1')
@@ -64,7 +64,7 @@ class FifoTestMixin(object):
         self.assertEqual(self.q.pop(), None)
 
 
-class LifoTestMixin(object):
+class LifoTestMixin:
 
     def test_push_pop_key(self):
         self.q.push(b'a', '1')
@@ -90,7 +90,7 @@ class LifoMemoryRRQueueTest(LifoTestMixin, base.RRQueueTestBase):
         return track_closed(LifoMemoryQueue)()
 
 
-class DiskTestMixin(object):
+class DiskTestMixin:
 
     def test_nonserializable_object_one(self):
         self.assertRaises(TypeError, self.q.push, lambda x: x, '0')
