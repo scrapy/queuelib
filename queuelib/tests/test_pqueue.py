@@ -60,7 +60,7 @@ class base:
             assert p1queue.closed
 
 
-class FifoTestMixin(object):
+class FifoTestMixin:
 
     def test_push_pop_noprio(self):
         self.q.push(b'a')
@@ -83,7 +83,7 @@ class FifoTestMixin(object):
         self.assertEqual(self.q.pop(), None)
 
 
-class LifoTestMixin(object):
+class LifoTestMixin:
 
     def test_push_pop_noprio(self):
         self.q.push(b'a')
@@ -118,7 +118,7 @@ class LifoMemoryPriorityQueueTest(LifoTestMixin, base.PQueueTestBase):
         return track_closed(LifoMemoryQueue)()
 
 
-class DiskTestMixin(object):
+class DiskTestMixin:
 
     def test_nonserializable_object_one(self):
         self.assertRaises(TypeError, self.q.push, lambda x: x, 0)

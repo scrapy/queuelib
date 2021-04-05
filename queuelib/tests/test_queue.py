@@ -9,7 +9,7 @@ from queuelib.queue import (
 from queuelib.tests import QueuelibTestCase
 
 
-class BaseQueueTest(object):
+class BaseQueueTest:
 
     def queue(self):
         return NotImplementedError()
@@ -148,7 +148,7 @@ class LifoTestMixin(BaseQueueTest):
         self.assertIsNone(q.peek())
 
 
-class PersistentTestMixin(object):
+class PersistentTestMixin:
 
     chunksize = 100000
 

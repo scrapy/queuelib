@@ -6,7 +6,7 @@ import sqlite3
 from collections import deque
 
 
-class FifoMemoryQueue(object):
+class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
     def __init__(self):
@@ -38,7 +38,7 @@ class LifoMemoryQueue(FifoMemoryQueue):
         return self.q[-1] if self.q else None
 
 
-class FifoDiskQueue(object):
+class FifoDiskQueue:
     """Persistent FIFO queue."""
 
     szhdr_format = ">L"
@@ -147,7 +147,7 @@ class FifoDiskQueue(object):
             os.rmdir(self.path)
 
 
-class LifoDiskQueue(object):
+class LifoDiskQueue:
     """Persistent LIFO queue."""
 
     SIZE_FORMAT = ">L"
@@ -206,7 +206,7 @@ class LifoDiskQueue(object):
         return self.size
 
 
-class FifoSQLiteQueue(object):
+class FifoSQLiteQueue:
 
     _sql_create = (
         'CREATE TABLE IF NOT EXISTS queue '
