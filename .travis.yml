@@ -2,10 +2,6 @@ language: python
 sudo: false
 matrix:
   include:
-    - python: 2.7
-      env: TOXENV=py27
-    - python: 2.7
-      env: TOXENV=pypy
     - python: 3.5
       env: TOXENV=py35
     - python: 3.5
@@ -16,16 +12,11 @@ matrix:
       env: TOXENV=py37
     - python: 3.8
       env: TOXENV=py38
+    - python: 3.9
+      env: TOXENV=py39
 
 install:
   - |
-      if [ "$TOXENV" = "pypy" ]; then
-        export PYPY_VERSION="pypy2-v5.9.0-linux64"
-        wget "https://downloads.python.org/pypy/${PYPY_VERSION}.tar.bz2"
-        tar -jxf ${PYPY_VERSION}.tar.bz2
-        virtualenv --python="$PYPY_VERSION/bin/pypy" "$HOME/virtualenvs/$PYPY_VERSION"
-        source "$HOME/virtualenvs/$PYPY_VERSION/bin/activate"
-      fi
       if [ "$TOXENV" = "pypy3" ]; then
         export PYPY_VERSION="pypy3-v5.9.0-linux64"
         wget "https://downloads.python.org/pypy/${PYPY_VERSION}.tar.bz2"

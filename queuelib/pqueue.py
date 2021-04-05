@@ -1,4 +1,4 @@
-class PriorityQueue(object):
+class PriorityQueue:
     """A priority queue implemented using multiple internal queues (typically,
     FIFO queues). The internal queue must implement the following methods:
 
