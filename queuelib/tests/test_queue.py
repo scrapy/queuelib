@@ -1,10 +1,15 @@
 import os
 import glob
+
 import pytest
 
 from queuelib.queue import (
-    FifoMemoryQueue, LifoMemoryQueue, FifoDiskQueue, LifoDiskQueue,
-    FifoSQLiteQueue, LifoSQLiteQueue,
+    FifoMemoryQueue,
+    LifoMemoryQueue,
+    FifoDiskQueue,
+    LifoDiskQueue,
+    FifoSQLiteQueue,
+    LifoSQLiteQueue,
 )
 from queuelib.tests import QueuelibTestCase
 
@@ -224,6 +229,14 @@ class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
 
     def queue(self):
         return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
+
+    def test_not_szhdr(self):
+        q = self.queue()
+        q.push(b"something")
+        with open(self.mktemp(), "w+") as empty_mock_file:
+            q.tailf = empty_mock_file
+            assert q.peek() is None
+            assert q.pop() is None
 
     def test_chunks(self):
         """Test chunks are created and removed"""
