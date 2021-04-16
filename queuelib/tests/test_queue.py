@@ -1,5 +1,6 @@
 import os
 import glob
+from unittest import mock
 
 import pytest
 
@@ -233,10 +234,11 @@ class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
     def test_not_szhdr(self):
         q = self.queue()
         q.push(b"something")
-        with open(self.mktemp(), "w+") as empty_mock_file:
-            q.tailf = empty_mock_file
+        empty_file = open(self.mktemp(), "w+")
+        with mock.patch.object(q, "tailf", empty_file):
             assert q.peek() is None
             assert q.pop() is None
+        empty_file.close()
 
     def test_chunks(self):
         """Test chunks are created and removed"""
