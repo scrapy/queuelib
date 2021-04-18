@@ -4,6 +4,7 @@ class PriorityQueue:
 
         * push(obj)
         * pop()
+        * peek()
         * close()
         * __len__()
 
@@ -47,6 +48,11 @@ class PriorityQueue:
             prios = [p for p, q in self.queues.items() if len(q) > 0]
             self.curprio = min(prios) if prios else None
         return m
+
+    def peek(self):
+        if self.curprio is None:
+            return None
+        return self.queues[self.curprio].peek()
 
     def close(self):
         active = []

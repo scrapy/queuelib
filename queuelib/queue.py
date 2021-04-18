@@ -17,6 +17,9 @@ class FifoMemoryQueue:
         q = self.q
         return q.popleft() if q else None
 
+    def peek(self):
+        return self.q[0] if self.q else None
+
     def close(self):
         pass
 
@@ -30,6 +33,9 @@ class LifoMemoryQueue(FifoMemoryQueue):
     def pop(self):
         q = self.q
         return q.pop() if q else None
+
+    def peek(self):
+        return self.q[-1] if self.q else None
 
 
 class FifoDiskQueue:
@@ -88,6 +94,20 @@ class FifoDiskQueue:
         self.info['tail'] = [tnum, tcnt, toffset]
         return data
 
+    def peek(self):
+        tnum, tcnt, toffset = self.info['tail']
+        if [tnum, tcnt] >= self.info['head']:
+            return
+        tfd = self.tailf.fileno()
+        tfd_initial_pos = os.lseek(tfd, 0, os.SEEK_CUR)
+        szhdr = os.read(tfd, self.szhdr_size)
+        if not szhdr:
+            return
+        size, = struct.unpack(self.szhdr_format, szhdr)
+        data = os.read(tfd, size)
+        os.lseek(tfd, tfd_initial_pos, os.SEEK_SET)
+        return data
+
     def close(self):
         self.headf.close()
         self.tailf.close()
@@ -127,7 +147,6 @@ class FifoDiskQueue:
             os.rmdir(self.path)
 
 
-
 class LifoDiskQueue:
     """Persistent LIFO queue."""
 
@@ -164,6 +183,15 @@ class LifoDiskQueue:
         self.f.seek(-size, os.SEEK_CUR)
         self.f.truncate()
         self.size -= 1
+        return data
+
+    def peek(self):
+        if not self.size:
+            return
+        self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
+        size, = struct.unpack(self.SIZE_FORMAT, self.f.read())
+        self.f.seek(-size-self.SIZE_SIZE, os.SEEK_END)
+        data = self.f.read(size)
         return data
 
     def close(self):
@@ -207,6 +235,11 @@ class FifoSQLiteQueue:
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
+                return item
+
+    def peek(self):
+        with self._db as conn:
+            for id_, item in conn.execute(self._sql_pop):
                 return item
 
     def close(self):
