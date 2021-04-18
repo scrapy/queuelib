@@ -1,9 +1,10 @@
-import os
 import glob
 import json
-import struct
+import os
 import sqlite3
+import struct
 from collections import deque
+from contextlib import suppress
 
 
 class FifoMemoryQueue:
@@ -143,7 +144,7 @@ class FifoDiskQueue:
         for x in glob.glob(os.path.join(self.path, 'q*')):
             os.remove(x)
         os.remove(os.path.join(self.path, 'info.json'))
-        if not os.listdir(self.path):
+        with suppress(OSError):
             os.rmdir(self.path)
 
 
