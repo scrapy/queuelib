@@ -1,10 +1,12 @@
 from collections import deque
 
+
 class RoundRobinQueue:
     """A round robin queue implemented using multiple internal queues (typically,
     FIFO queues). The internal queue must implement the following methods:
         * push(obj)
         * pop()
+        * peek()
         * close()
         * __len__()
     The constructor receives a qfactory argument, which is a callable used to
@@ -35,6 +37,13 @@ class RoundRobinQueue:
 
         q = self.queues[key]
         q.push(obj) # this may fail (eg. serialization error)
+
+    def peek(self):
+        try:
+            key = self.key_queue[-1]
+        except IndexError:
+            return None
+        return self.queues[key].peek()
 
     def pop(self):
         m = None
