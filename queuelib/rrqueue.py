@@ -11,15 +11,13 @@ class RoundRobinQueue:
         * __len__()
     The constructor receives a qfactory argument, which is a callable used to
     instantiate a new (internal) queue when a new key is allocated. The
-    qfactory function is called with the key number as first and only
-    argument.
-    start_keys is a sequence of domains to start with. If the queue was
-    previously closed leaving some domain buckets non-empty, those domains
-    should be passed in start_keys.
+    qfactory function is called with the key number as first and only argument.
+    start_domains is a sequence of domains to initialize the queue with. If the
+    queue was previously closed leaving some domain buckets non-empty, those
+    domains should be passed in start_domains.
 
-    The queue maintains a fifo queue of keys.  The key that went last is
-    poped first and the next queue for that key is then poped.  This allows
-    for a round robin
+    The queue maintains a fifo queue of keys. The key that went last is popped
+    first and the next queue for that key is then popped.
     """
 
     def __init__(self, qfactory, start_domains=()):
@@ -27,14 +25,12 @@ class RoundRobinQueue:
         self.qfactory = qfactory
         for key in start_domains:
             self.queues[key] = self.qfactory(key)
-
         self.key_queue = deque(start_domains)
 
     def push(self, obj, key):
         if key not in self.key_queue:
             self.queues[key] = self.qfactory(key)
             self.key_queue.appendleft(key)  # it's new, might as well pop first
-
         q = self.queues[key]
         q.push(obj) # this may fail (eg. serialization error)
 
@@ -46,9 +42,8 @@ class RoundRobinQueue:
         return self.queues[key].peek()
 
     def pop(self):
-        m = None
         # pop until we find a valid object, closing necessary queues
-        while m is None:
+        while True:
             try:
                 key = self.key_queue.pop()
             except IndexError:
