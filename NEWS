@@ -1,6 +1,14 @@
 Queuelib release notes
 ======================
 
+Version 1.6
+-----------
+(released on April 21st, 2021)
+
+* peek support
+* remove py2 support
+
+
 Version 1.0
 -----------
 (released on April 23rd, 2013)
