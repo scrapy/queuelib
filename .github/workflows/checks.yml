@@ -2,7 +2,7 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
-  tests:
+  flake8:
     runs-on: ubuntu-latest
     strategy:
       matrix:
