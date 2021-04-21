@@ -1,12 +1,23 @@
 Queuelib release notes
 ======================
 
+Version 1.6.1
+-------------
+(released on April 21st, 2021)
+
+No code changes with respect to 1.6
+
+* Migrate CI to GitHub actions
+* Fix release
+
+
 Version 1.6
 -----------
 (released on April 21st, 2021)
 
-* peek support
-* remove py2 support
+* Add peek support
+* Remove py2 support
+* Full test coverage
 
 
 Version 1.0
