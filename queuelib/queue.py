@@ -1,12 +1,13 @@
-import os
 import glob
 import json
-import struct
+import os
 import sqlite3
+import struct
 from collections import deque
+from contextlib import suppress
 
 
-class FifoMemoryQueue(object):
+class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
     def __init__(self):
@@ -16,6 +17,9 @@ class FifoMemoryQueue(object):
     def pop(self):
         q = self.q
         return q.popleft() if q else None
+
+    def peek(self):
+        return self.q[0] if self.q else None
 
     def close(self):
         pass
@@ -31,8 +35,11 @@ class LifoMemoryQueue(FifoMemoryQueue):
         q = self.q
         return q.pop() if q else None
 
+    def peek(self):
+        return self.q[-1] if self.q else None
 
-class FifoDiskQueue(object):
+
+class FifoDiskQueue:
     """Persistent FIFO queue."""
 
     szhdr_format = ">L"
@@ -88,6 +95,20 @@ class FifoDiskQueue(object):
         self.info['tail'] = [tnum, tcnt, toffset]
         return data
 
+    def peek(self):
+        tnum, tcnt, toffset = self.info['tail']
+        if [tnum, tcnt] >= self.info['head']:
+            return
+        tfd = self.tailf.fileno()
+        tfd_initial_pos = os.lseek(tfd, 0, os.SEEK_CUR)
+        szhdr = os.read(tfd, self.szhdr_size)
+        if not szhdr:
+            return
+        size, = struct.unpack(self.szhdr_format, szhdr)
+        data = os.read(tfd, size)
+        os.lseek(tfd, tfd_initial_pos, os.SEEK_SET)
+        return data
+
     def close(self):
         self.headf.close()
         self.tailf.close()
@@ -123,12 +144,11 @@ class FifoDiskQueue(object):
         for x in glob.glob(os.path.join(self.path, 'q*')):
             os.remove(x)
         os.remove(os.path.join(self.path, 'info.json'))
-        if not os.listdir(self.path):
+        with suppress(OSError):
             os.rmdir(self.path)
 
 
-
-class LifoDiskQueue(object):
+class LifoDiskQueue:
     """Persistent LIFO queue."""
 
     SIZE_FORMAT = ">L"
@@ -166,6 +186,15 @@ class LifoDiskQueue(object):
         self.size -= 1
         return data
 
+    def peek(self):
+        if not self.size:
+            return
+        self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
+        size, = struct.unpack(self.SIZE_FORMAT, self.f.read())
+        self.f.seek(-size-self.SIZE_SIZE, os.SEEK_END)
+        data = self.f.read(size)
+        return data
+
     def close(self):
         if self.size:
             self.f.seek(0)
@@ -178,7 +207,7 @@ class LifoDiskQueue(object):
         return self.size
 
 
-class FifoSQLiteQueue(object):
+class FifoSQLiteQueue:
 
     _sql_create = (
         'CREATE TABLE IF NOT EXISTS queue '
@@ -207,6 +236,11 @@ class FifoSQLiteQueue(object):
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
+                return item
+
+    def peek(self):
+        with self._db as conn:
+            for id_, item in conn.execute(self._sql_pop):
                 return item
 
     def close(self):

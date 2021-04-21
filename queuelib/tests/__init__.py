@@ -1,4 +1,7 @@
-import unittest, tempfile, shutil
+import shutil
+import tempfile
+import unittest
+
 
 class QueuelibTestCase(unittest.TestCase):
 
