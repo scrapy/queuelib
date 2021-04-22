@@ -3,7 +3,6 @@ persistent=no
 
 [MESSAGES CONTROL]
 disable=duplicate-code,
-        inconsistent-return-statements,
         invalid-name,
         missing-class-docstring,
         missing-function-docstring,
