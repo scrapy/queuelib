@@ -1,3 +1,6 @@
+from typing import Any, Callable, Iterable, List, Optional
+
+
 class PriorityQueue:
     """A priority queue implemented using multiple internal queues (typically,
     FIFO queues). The internal queue must implement the following methods:
@@ -22,14 +25,14 @@ class PriorityQueue:
 
     """
 
-    def __init__(self, qfactory, startprios=()):
+    def __init__(self, qfactory: Callable, startprios: Iterable[int] = ()) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for p in startprios:
             self.queues[p] = self.qfactory(p)
         self.curprio = min(startprios) if startprios else None
 
-    def push(self, obj, priority=0):
+    def push(self, obj: Any, priority: int = 0) -> None:
         if priority not in self.queues:
             self.queues[priority] = self.qfactory(priority)
         q = self.queues[priority]
@@ -37,9 +40,9 @@ class PriorityQueue:
         if self.curprio is None or priority < self.curprio:
             self.curprio = priority
 
-    def pop(self):
+    def pop(self) -> Optional[Any]:
         if self.curprio is None:
-            return
+            return None
         q = self.queues[self.curprio]
         m = q.pop()
         if len(q) == 0:
@@ -49,12 +52,12 @@ class PriorityQueue:
             self.curprio = min(prios) if prios else None
         return m
 
-    def peek(self):
+    def peek(self) -> Optional[Any]:
         if self.curprio is None:
             return None
         return self.queues[self.curprio].peek()
 
-    def close(self):
+    def close(self) -> List[int]:
         active = []
         for p, q in self.queues.items():
             if len(q):
@@ -62,5 +65,5 @@ class PriorityQueue:
             q.close()
         return active
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum(len(x) for x in self.queues.values()) if self.queues else 0

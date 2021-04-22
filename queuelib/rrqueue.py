@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Any, Callable, Hashable, Iterable, List, Optional
 
 
 class RoundRobinQueue:
@@ -20,34 +21,34 @@ class RoundRobinQueue:
     first and the next queue for that key is then popped.
     """
 
-    def __init__(self, qfactory, start_domains=()):
+    def __init__(self, qfactory: Callable, start_domains: Iterable[Hashable] = ()) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for key in start_domains:
             self.queues[key] = self.qfactory(key)
         self.key_queue = deque(start_domains)
 
-    def push(self, obj, key):
+    def push(self, obj: Any, key: Hashable) -> None:
         if key not in self.key_queue:
             self.queues[key] = self.qfactory(key)
             self.key_queue.appendleft(key)  # it's new, might as well pop first
         q = self.queues[key]
         q.push(obj)  # this may fail (eg. serialization error)
 
-    def peek(self):
+    def peek(self) -> Optional[Any]:
         try:
             key = self.key_queue[-1]
         except IndexError:
             return None
         return self.queues[key].peek()
 
-    def pop(self):
+    def pop(self) -> Optional[Any]:
         # pop until we find a valid object, closing necessary queues
         while True:
             try:
                 key = self.key_queue.pop()
             except IndexError:
-                return
+                return None
 
             q = self.queues[key]
             m = q.pop()
@@ -61,7 +62,7 @@ class RoundRobinQueue:
             if m:
                 return m
 
-    def close(self):
+    def close(self) -> List[Hashable]:
         active = []
         for k, q in self.queues.items():
             if len(q):
@@ -69,5 +70,5 @@ class RoundRobinQueue:
             q.close()
         return active
 
-    def __len__(self):
+    def __len__(self) -> int:
         return sum(len(x) for x in self.queues.values()) if self.queues else 0
