@@ -32,7 +32,7 @@ class RoundRobinQueue:
             self.queues[key] = self.qfactory(key)
             self.key_queue.appendleft(key)  # it's new, might as well pop first
         q = self.queues[key]
-        q.push(obj) # this may fail (eg. serialization error)
+        q.push(obj)  # this may fail (eg. serialization error)
 
     def peek(self):
         try:
