@@ -1,4 +1,5 @@
 htmlcov/
+coverage.xml
 .coverage
 .tox
 *egg-info

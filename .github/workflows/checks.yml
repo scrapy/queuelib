@@ -2,14 +2,20 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
-  flake8:
+  checks:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-        - python-version: 3.9
+        - python-version: 3
           env:
             TOXENV: flake8
+        - python-version: 3
+          env:
+            TOXENV: security
+        - python-version: 3
+          env:
+            TOXENV: typing
 
     steps:
     - uses: actions/checkout@v2
@@ -22,5 +28,6 @@ jobs:
     - name: Run check
       env: ${{ matrix.env }}
       run: |
+        pip install -U pip
         pip install -U tox
         tox

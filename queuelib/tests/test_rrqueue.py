@@ -154,7 +154,7 @@ class LifoSQLiteRRQueueTest(LifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
 
 
 # hack to prevent py.test from discovering base test class
-class base:
+class base_start_domains:
     class RRQueueTestBaseStartDomains(QueuelibTestCase):
 
         def setUp(self):
@@ -185,35 +185,35 @@ class base:
             self.assertEqual(self.q.pop(), None)
 
 
-class FifoMemoryRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class FifoMemoryRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         return track_closed(FifoMemoryQueue)()
 
 
-class LifoMemoryRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class LifoMemoryRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         return track_closed(LifoMemoryQueue)()
 
 
-class FifoDiskRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class FifoDiskRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class LifoDiskRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLiteRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class FifoSQLiteRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLiteRRQueueStartDomainsTest(base.RRQueueTestBaseStartDomains):
+class LifoSQLiteRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoSQLiteQueue)(path)
