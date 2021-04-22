@@ -13,5 +13,4 @@ disable=duplicate-code,
         no-member,
         no-self-use,
         super-with-arguments,
-        too-few-public-methods,
-        unused-variable
+        too-few-public-methods
