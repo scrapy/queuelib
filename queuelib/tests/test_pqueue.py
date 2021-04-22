@@ -60,49 +60,71 @@ class base:
             assert p1queue.closed
 
 
-class FifoTestMixin(object):
+class FifoTestMixin:
 
-    def test_push_pop_noprio(self):
+    def test_push_pop_peek_noprio(self):
+        self.assertEqual(self.q.peek(), None)
         self.q.push(b'a')
         self.q.push(b'b')
         self.q.push(b'c')
+        self.assertEqual(self.q.peek(), b'a')
         self.assertEqual(self.q.pop(), b'a')
+        self.assertEqual(self.q.peek(), b'b')
         self.assertEqual(self.q.pop(), b'b')
+        self.assertEqual(self.q.peek(), b'c')
         self.assertEqual(self.q.pop(), b'c')
+        self.assertEqual(self.q.peek(), None)
         self.assertEqual(self.q.pop(), None)
 
-    def test_push_pop_prio(self):
+    def test_push_pop_peek_prio(self):
+        self.assertEqual(self.q.peek(), None)
         self.q.push(b'a', 3)
         self.q.push(b'b', 1)
         self.q.push(b'c', 2)
         self.q.push(b'd', 1)
+        self.assertEqual(self.q.peek(), b'b')
         self.assertEqual(self.q.pop(), b'b')
+        self.assertEqual(self.q.peek(), b'd')
         self.assertEqual(self.q.pop(), b'd')
+        self.assertEqual(self.q.peek(), b'c')
         self.assertEqual(self.q.pop(), b'c')
+        self.assertEqual(self.q.peek(), b'a')
         self.assertEqual(self.q.pop(), b'a')
+        self.assertEqual(self.q.peek(), None)
         self.assertEqual(self.q.pop(), None)
 
 
-class LifoTestMixin(object):
+class LifoTestMixin:
 
-    def test_push_pop_noprio(self):
+    def test_push_pop_peek_noprio(self):
+        self.assertEqual(self.q.peek(), None)
         self.q.push(b'a')
         self.q.push(b'b')
         self.q.push(b'c')
+        self.assertEqual(self.q.peek(), b'c')
         self.assertEqual(self.q.pop(), b'c')
+        self.assertEqual(self.q.peek(), b'b')
         self.assertEqual(self.q.pop(), b'b')
+        self.assertEqual(self.q.peek(), b'a')
         self.assertEqual(self.q.pop(), b'a')
+        self.assertEqual(self.q.peek(), None)
         self.assertEqual(self.q.pop(), None)
 
-    def test_push_pop_prio(self):
+    def test_push_pop_peek_prio(self):
+        self.assertEqual(self.q.peek(), None)
         self.q.push(b'a', 3)
         self.q.push(b'b', 1)
         self.q.push(b'c', 2)
         self.q.push(b'd', 1)
+        self.assertEqual(self.q.peek(), b'd')
         self.assertEqual(self.q.pop(), b'd')
+        self.assertEqual(self.q.peek(), b'b')
         self.assertEqual(self.q.pop(), b'b')
+        self.assertEqual(self.q.peek(), b'c')
         self.assertEqual(self.q.pop(), b'c')
+        self.assertEqual(self.q.peek(), b'a')
         self.assertEqual(self.q.pop(), b'a')
+        self.assertEqual(self.q.peek(), None)
         self.assertEqual(self.q.pop(), None)
 
 
@@ -118,7 +140,7 @@ class LifoMemoryPriorityQueueTest(LifoTestMixin, base.PQueueTestBase):
         return track_closed(LifoMemoryQueue)()
 
 
-class DiskTestMixin(object):
+class DiskTestMixin:
 
     def test_nonserializable_object_one(self):
         self.assertRaises(TypeError, self.q.push, lambda x: x, 0)

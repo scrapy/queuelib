@@ -1,9 +1,10 @@
-class PriorityQueue(object):
+class PriorityQueue:
     """A priority queue implemented using multiple internal queues (typically,
     FIFO queues). The internal queue must implement the following methods:
 
         * push(obj)
         * pop()
+        * peek()
         * close()
         * __len__()
 
@@ -32,7 +33,7 @@ class PriorityQueue(object):
         if priority not in self.queues:
             self.queues[priority] = self.qfactory(priority)
         q = self.queues[priority]
-        q.push(obj) # this may fail (eg. serialization error)
+        q.push(obj)  # this may fail (eg. serialization error)
         if self.curprio is None or priority < self.curprio:
             self.curprio = priority
 
@@ -47,6 +48,11 @@ class PriorityQueue(object):
             prios = [p for p, q in self.queues.items() if len(q) > 0]
             self.curprio = min(prios) if prios else None
         return m
+
+    def peek(self):
+        if self.curprio is None:
+            return None
+        return self.queues[self.curprio].peek()
 
     def close(self):
         active = []

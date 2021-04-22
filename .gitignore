@@ -1,4 +1,7 @@
-/.coverage
+htmlcov/
+coverage.xml
+.coverage
+.tox
 *egg-info
 *.pyc
 /.tox/

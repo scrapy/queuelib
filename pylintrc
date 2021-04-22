@@ -5,7 +5,6 @@ persistent=no
 disable=duplicate-code,
         inconsistent-return-statements,
         invalid-name,
-        len-as-condition,
         missing-class-docstring,
         missing-final-newline,
         missing-function-docstring,
@@ -13,5 +12,6 @@ disable=duplicate-code,
         multiple-imports,
         no-member,
         no-self-use,
+        super-with-arguments,
         too-few-public-methods,
-        useless-object-inheritance  # Required for Python 2 support
+        unused-variable

@@ -1,23 +1,29 @@
-import os
 import glob
 import json
-import struct
+import os
 import sqlite3
+import struct
 from collections import deque
+from contextlib import suppress
+from typing import Any, Optional
 
 
-class FifoMemoryQueue(object):
+class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
-    def __init__(self):
-        self.q = deque()
-        self.push = self.q.append
+    def __init__(self) -> None:
+        self.q = deque()  # type: deque
 
-    def pop(self):
-        q = self.q
-        return q.popleft() if q else None
+    def push(self, obj: Any) -> None:
+        self.q.append(obj)
 
-    def close(self):
+    def pop(self) -> Optional[Any]:
+        return self.q.popleft() if self.q else None
+
+    def peek(self) -> Optional[Any]:
+        return self.q[0] if self.q else None
+
+    def close(self) -> None:
         pass
 
     def __len__(self):
@@ -27,18 +33,20 @@ class FifoMemoryQueue(object):
 class LifoMemoryQueue(FifoMemoryQueue):
     """In-memory LIFO queue, API compliant with LifoDiskQueue."""
 
-    def pop(self):
-        q = self.q
-        return q.pop() if q else None
+    def pop(self) -> Optional[Any]:
+        return self.q.pop() if self.q else None
+
+    def peek(self) -> Optional[Any]:
+        return self.q[-1] if self.q else None
 
 
-class FifoDiskQueue(object):
+class FifoDiskQueue:
     """Persistent FIFO queue."""
 
     szhdr_format = ">L"
     szhdr_size = struct.calcsize(szhdr_format)
 
-    def __init__(self, path, chunksize=100000):
+    def __init__(self, path: str, chunksize: int = 100000) -> None:
         self.path = path
         if not os.path.exists(path):
             os.makedirs(path)
@@ -48,7 +56,7 @@ class FifoDiskQueue(object):
         self.tailf = self._openchunk(self.info['tail'][0])
         os.lseek(self.tailf.fileno(), self.info['tail'][2], os.SEEK_SET)
 
-    def push(self, string):
+    def push(self, string: bytes) -> None:
         if not isinstance(string, bytes):
             raise TypeError('Unsupported type: {}'.format(type(string).__name__))
         hnum, hpos = self.info['head']
@@ -63,17 +71,17 @@ class FifoDiskQueue(object):
         self.info['size'] += 1
         self.info['head'] = [hnum, hpos]
 
-    def _openchunk(self, number, mode='rb'):
+    def _openchunk(self, number: int, mode: str = 'rb'):
         return open(os.path.join(self.path, 'q%05d' % number), mode)
 
-    def pop(self):
+    def pop(self) -> Optional[bytes]:
         tnum, tcnt, toffset = self.info['tail']
         if [tnum, tcnt] >= self.info['head']:
-            return
+            return None
         tfd = self.tailf.fileno()
         szhdr = os.read(tfd, self.szhdr_size)
         if not szhdr:
-            return
+            return None
         size, = struct.unpack(self.szhdr_format, szhdr)
         data = os.read(tfd, size)
         tcnt += 1
@@ -88,17 +96,31 @@ class FifoDiskQueue(object):
         self.info['tail'] = [tnum, tcnt, toffset]
         return data
 
-    def close(self):
+    def peek(self) -> Optional[bytes]:
+        tnum, tcnt, toffset = self.info['tail']
+        if [tnum, tcnt] >= self.info['head']:
+            return None
+        tfd = self.tailf.fileno()
+        tfd_initial_pos = os.lseek(tfd, 0, os.SEEK_CUR)
+        szhdr = os.read(tfd, self.szhdr_size)
+        if not szhdr:
+            return None
+        size, = struct.unpack(self.szhdr_format, szhdr)
+        data = os.read(tfd, size)
+        os.lseek(tfd, tfd_initial_pos, os.SEEK_SET)
+        return data
+
+    def close(self) -> None:
         self.headf.close()
         self.tailf.close()
         self._saveinfo(self.info)
         if len(self) == 0:
             self._cleanup()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.info['size']
 
-    def _loadinfo(self, chunksize):
+    def _loadinfo(self, chunksize: int) -> dict:
         infopath = self._infopath()
         if os.path.exists(infopath):
             with open(infopath) as f:
@@ -112,29 +134,28 @@ class FifoDiskQueue(object):
             }
         return info
 
-    def _saveinfo(self, info):
+    def _saveinfo(self, info: dict) -> None:
         with open(self._infopath(), 'w') as f:
             json.dump(info, f)
 
-    def _infopath(self):
+    def _infopath(self) -> str:
         return os.path.join(self.path, 'info.json')
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         for x in glob.glob(os.path.join(self.path, 'q*')):
             os.remove(x)
         os.remove(os.path.join(self.path, 'info.json'))
-        if not os.listdir(self.path):
+        with suppress(OSError):
             os.rmdir(self.path)
 
 
-
-class LifoDiskQueue(object):
+class LifoDiskQueue:
     """Persistent LIFO queue."""
 
     SIZE_FORMAT = ">L"
     SIZE_SIZE = struct.calcsize(SIZE_FORMAT)
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self.path = path
         if os.path.exists(path):
             self.f = open(path, 'rb+')
@@ -146,7 +167,7 @@ class LifoDiskQueue(object):
             self.f.write(struct.pack(self.SIZE_FORMAT, 0))
             self.size = 0
 
-    def push(self, string):
+    def push(self, string: bytes) -> None:
         if not isinstance(string, bytes):
             raise TypeError('Unsupported type: {}'.format(type(string).__name__))
         self.f.write(string)
@@ -154,9 +175,9 @@ class LifoDiskQueue(object):
         self.f.write(ssize)
         self.size += 1
 
-    def pop(self):
+    def pop(self) -> Optional[bytes]:
         if not self.size:
-            return
+            return None
         self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
         size, = struct.unpack(self.SIZE_FORMAT, self.f.read())
         self.f.seek(-size-self.SIZE_SIZE, os.SEEK_END)
@@ -166,7 +187,16 @@ class LifoDiskQueue(object):
         self.size -= 1
         return data
 
-    def close(self):
+    def peek(self) -> Optional[bytes]:
+        if not self.size:
+            return None
+        self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
+        size, = struct.unpack(self.SIZE_FORMAT, self.f.read())
+        self.f.seek(-size-self.SIZE_SIZE, os.SEEK_END)
+        data = self.f.read(size)
+        return data
+
+    def close(self) -> None:
         if self.size:
             self.f.seek(0)
             self.f.write(struct.pack(self.SIZE_FORMAT, self.size))
@@ -174,11 +204,11 @@ class LifoDiskQueue(object):
         if not self.size:
             os.remove(self.path)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.size
 
 
-class FifoSQLiteQueue(object):
+class FifoSQLiteQueue:
 
     _sql_create = (
         'CREATE TABLE IF NOT EXISTS queue '
@@ -189,33 +219,39 @@ class FifoSQLiteQueue(object):
     _sql_pop = 'SELECT id, item FROM queue ORDER BY id LIMIT 1'
     _sql_del = 'DELETE FROM queue WHERE id = ?'
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self._path = os.path.abspath(path)
         self._db = sqlite3.Connection(self._path, timeout=60)
         self._db.text_factory = bytes
         with self._db as conn:
             conn.execute(self._sql_create)
 
-    def push(self, item):
+    def push(self, item: bytes) -> None:
         if not isinstance(item, bytes):
             raise TypeError('Unsupported type: {}'.format(type(item).__name__))
-
         with self._db as conn:
             conn.execute(self._sql_push, (item,))
 
-    def pop(self):
+    def pop(self) -> Optional[bytes]:
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
                 return item
+        return None
 
-    def close(self):
+    def peek(self) -> Optional[bytes]:
+        with self._db as conn:
+            for id_, item in conn.execute(self._sql_pop):
+                return item
+        return None
+
+    def close(self) -> None:
         size = len(self)
         self._db.close()
         if not size:
             os.remove(self._path)
 
-    def __len__(self):
+    def __len__(self) -> int:
         with self._db as conn:
             return next(conn.execute(self._sql_size))[0]
 
