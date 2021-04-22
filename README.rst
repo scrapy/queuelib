@@ -2,15 +2,22 @@
 queuelib
 ========
 
-.. image:: https://secure.travis-ci.org/scrapy/queuelib.png?branch=master
-   :target: http://travis-ci.org/scrapy/queuelib
+.. image:: https://img.shields.io/pypi/v/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://img.shields.io/pypi/pyversions/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://github.com/scrapy/queuelib/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/scrapy/queuelib/actions/workflows/tests.yml
 
 .. image:: https://img.shields.io/codecov/c/github/scrapy/queuelib/master.svg
    :target: http://codecov.io/github/scrapy/queuelib?branch=master
    :alt: Coverage report
 
 
-Queuelib is a collection of persistent (disk-based) queues for Python.
+Queuelib is a collection of persistent (disk-based)
+and non-persistent (memory-based) queues for Python.
 
 Queuelib goals are speed and simplicity. It was originally part of the `Scrapy
 framework`_ and stripped out on its own library.
@@ -20,7 +27,7 @@ Note: Queuelib isn't thread-safe.
 Requirements
 ============
 
-* Python 2.7 or Python 3.5+
+* Python 3.5+
 * no external library requirements
 
 Installation
