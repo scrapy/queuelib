@@ -234,7 +234,7 @@ class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
     def test_not_szhdr(self):
         q = self.queue()
         q.push(b"something")
-        empty_file = open(self.mktemp(), "w+")
+        empty_file = open(self.tempfilename(), "w+")
         with mock.patch.object(q, "tailf", empty_file):
             assert q.peek() is None
             assert q.pop() is None

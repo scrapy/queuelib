@@ -2,6 +2,29 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
+  security:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - python-version: 3
+          env:
+            TOXENV: security
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Run check
+      env: ${{ matrix.env }}
+      run: |
+        pip install -U tox
+        tox
+
   typing:
     runs-on: ubuntu-latest
     strategy:

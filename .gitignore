@@ -4,3 +4,4 @@ coverage.xml
 .tox
 *egg-info
 *.pyc
+/.tox/
