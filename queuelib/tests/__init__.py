@@ -27,11 +27,11 @@ def track_closed(cls):
     class TrackingClosed(cls):
 
         def __init__(self, *a, **kw):
-            super(TrackingClosed, self).__init__(*a, **kw)
+            super().__init__(*a, **kw)
             self.closed = False
 
         def close(self):
-            super(TrackingClosed, self).close()
+            super().close()
             self.closed = True
 
     return TrackingClosed

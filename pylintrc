@@ -12,5 +12,4 @@ disable=duplicate-code,
         multiple-imports,
         no-member,
         no-self-use,
-        super-with-arguments,
         too-few-public-methods
