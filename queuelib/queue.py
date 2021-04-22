@@ -12,7 +12,7 @@ class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
     def __init__(self) -> None:
-        self.q: deque = deque()
+        self.q = deque()  # type: deque
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
