@@ -2,8 +2,14 @@
 queuelib
 ========
 
-.. image:: https://secure.travis-ci.org/scrapy/queuelib.png?branch=master
-   :target: http://travis-ci.org/scrapy/queuelib
+.. image:: https://img.shields.io/pypi/v/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://img.shields.io/pypi/pyversions/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://github.com/scrapy/queuelib/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/scrapy/queuelib/actions/workflows/tests.yml
 
 .. image:: https://img.shields.io/codecov/c/github/scrapy/queuelib/master.svg
    :target: http://codecov.io/github/scrapy/queuelib?branch=master
