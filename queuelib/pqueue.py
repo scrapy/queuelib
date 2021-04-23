@@ -1,5 +1,7 @@
 from typing import Any, Callable, Iterable, List, Optional
 
+from queuelib.queue import _BaseQueue
+
 
 class PriorityQueue:
     """A priority queue implemented using multiple internal queues (typically,
@@ -25,7 +27,9 @@ class PriorityQueue:
 
     """
 
-    def __init__(self, qfactory: Callable, startprios: Iterable[int] = ()) -> None:
+    def __init__(
+        self, qfactory: Callable[[int], _BaseQueue], startprios: Iterable[int] = ()
+    ) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for p in startprios:
