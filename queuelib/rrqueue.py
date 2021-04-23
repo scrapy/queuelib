@@ -1,6 +1,8 @@
 from collections import deque
 from typing import Any, Callable, Hashable, Iterable, List, Optional
 
+from queuelib.queue import BaseQueue
+
 
 class RoundRobinQueue:
     """A round robin queue implemented using multiple internal queues (typically,
@@ -21,7 +23,9 @@ class RoundRobinQueue:
     first and the next queue for that key is then popped.
     """
 
-    def __init__(self, qfactory: Callable, start_domains: Iterable[Hashable] = ()) -> None:
+    def __init__(
+        self, qfactory: Callable[[Hashable], BaseQueue], start_domains: Iterable[Hashable] = ()
+    ) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for key in start_domains:
