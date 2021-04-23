@@ -3,15 +3,10 @@ persistent=no
 
 [MESSAGES CONTROL]
 disable=duplicate-code,
-        inconsistent-return-statements,
         invalid-name,
         missing-class-docstring,
-        missing-final-newline,
         missing-function-docstring,
         missing-module-docstring,
-        multiple-imports,
         no-member,
         no-self-use,
-        super-with-arguments,
-        too-few-public-methods,
-        unused-variable
+        too-few-public-methods

@@ -47,7 +47,7 @@ class RoundRobinQueue:
             try:
                 key = self.key_queue.pop()
             except IndexError:
-                return
+                return None
 
             q = self.queues[key]
             m = q.pop()

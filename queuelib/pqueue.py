@@ -39,7 +39,7 @@ class PriorityQueue:
 
     def pop(self):
         if self.curprio is None:
-            return
+            return None
         q = self.queues[self.curprio]
         m = q.pop()
         if len(q) == 0:

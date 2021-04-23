@@ -97,7 +97,7 @@ class FifoDiskQueue:
         return data
 
     def peek(self) -> Optional[bytes]:
-        tnum, tcnt, toffset = self.info['tail']
+        tnum, tcnt, _ = self.info['tail']
         if [tnum, tcnt] >= self.info['head']:
             return None
         tfd = self.tailf.fileno()
@@ -241,7 +241,7 @@ class FifoSQLiteQueue:
 
     def peek(self) -> Optional[bytes]:
         with self._db as conn:
-            for id_, item in conn.execute(self._sql_pop):
+            for _, item in conn.execute(self._sql_pop):
                 return item
         return None
 
