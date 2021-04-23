@@ -1,6 +1,7 @@
 import os
 import glob
 from unittest import mock
+from typing import Any, Optional
 
 import pytest
 
@@ -14,6 +15,26 @@ from queuelib.queue import (
     LifoSQLiteQueue,
 )
 from queuelib.tests import QueuelibTestCase
+
+
+class DummyQueue:
+    def __init__(self) -> None:
+        self.q = list()  # type: list
+
+    def push(self, obj: Any) -> None:
+        self.q.append(obj)
+
+    def pop(self) -> Optional[Any]:
+        return self.q.pop() if self.q else None
+
+    def peek(self) -> Optional[Any]:
+        return self.q[-1] if self.q else None
+
+    def close(self) -> None:
+        pass
+
+    def __len__(self):
+        return len(self.q)
 
 
 class InterfaceTest(QueuelibTestCase):
@@ -30,6 +51,10 @@ class InterfaceTest(QueuelibTestCase):
         queue.close()
 
     def test_issubclass(self):
+        assert not issubclass(list, BaseQueue)
+        assert not issubclass(int, BaseQueue)
+        assert not issubclass(QueuelibTestCase, BaseQueue)
+        assert issubclass(DummyQueue, BaseQueue)
         assert issubclass(FifoMemoryQueue, BaseQueue)
         assert issubclass(LifoMemoryQueue, BaseQueue)
         assert issubclass(FifoDiskQueue, BaseQueue)
@@ -38,6 +63,9 @@ class InterfaceTest(QueuelibTestCase):
         assert issubclass(LifoSQLiteQueue, BaseQueue)
 
     def test_isinstance(self):
+        assert not isinstance(1, BaseQueue)
+        assert not isinstance([], BaseQueue)
+        assert isinstance(DummyQueue(), BaseQueue)
         assert isinstance(FifoMemoryQueue(), BaseQueue)
         assert isinstance(LifoMemoryQueue(), BaseQueue)
         for cls in [FifoDiskQueue, LifoDiskQueue, FifoSQLiteQueue, LifoSQLiteQueue]:
