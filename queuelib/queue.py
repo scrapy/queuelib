@@ -13,7 +13,7 @@ class _BaseQueueMeta(type):
     Metaclass to check queue classes against the necessary interface
     """
     def __instancecheck__(cls, instance):
-        return cls.__subclasscheck__(type(instance))
+        return cls.__subclasscheck__(type(instance))  # pylint: disable=no-value-for-parameter
 
     def __subclasscheck__(cls, subclass):
         return (
