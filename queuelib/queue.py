@@ -248,10 +248,7 @@ class LifoDiskQueue:
 
 
 class FifoSQLiteQueue:
-
-    _sql_create = (
-        "CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, item BLOB)"
-    )
+    _sql_create = "CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, item BLOB)"
     _sql_size = "SELECT COUNT(*) FROM queue"
     _sql_push = "INSERT INTO queue (item) VALUES (?)"
     _sql_pop = "SELECT id, item FROM queue ORDER BY id LIMIT 1"
@@ -295,7 +292,6 @@ class FifoSQLiteQueue:
 
 
 class LifoSQLiteQueue(FifoSQLiteQueue):
-
     _sql_pop = "SELECT id, item FROM queue ORDER BY id DESC LIMIT 1"
 
 
