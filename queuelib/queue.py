@@ -293,7 +293,3 @@ class FifoSQLiteQueue:
 
 class LifoSQLiteQueue(FifoSQLiteQueue):
     _sql_pop = "SELECT id, item FROM queue ORDER BY id DESC LIMIT 1"
-
-
-# FifoDiskQueue = FifoSQLiteQueue  # noqa
-# LifoDiskQueue = LifoSQLiteQueue  # noqa
