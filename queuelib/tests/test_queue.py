@@ -1,5 +1,6 @@
 import os
 import glob
+from abc import abstractmethod
 from unittest import mock
 from typing import Any, Optional
 
@@ -74,9 +75,10 @@ class InterfaceTest(QueuelibTestCase):
             queue.close()
 
 
-class BaseQueueTest:
-    def queue(self):
-        return NotImplementedError()
+class QueueTestMixin:
+    @abstractmethod
+    def queue(self) -> BaseQueue:
+        raise NotImplementedError()
 
     def test_empty(self):
         """Empty queue test"""
@@ -122,7 +124,7 @@ class BaseQueueTest:
         self.assertIsNone(q.peek())
 
 
-class FifoTestMixin(BaseQueueTest):
+class FifoTestMixin:
     def test_push_pop1(self):
         """Basic push/pop test"""
         q = self.queue()
@@ -166,7 +168,7 @@ class FifoTestMixin(BaseQueueTest):
         self.assertIsNone(q.peek())
 
 
-class LifoTestMixin(BaseQueueTest):
+class LifoTestMixin:
     def test_push_pop1(self):
         """Basic push/pop test"""
         q = self.queue()
@@ -269,17 +271,17 @@ class PersistentTestMixin:
         assert not os.path.exists(self.qpath)
 
 
-class FifoMemoryQueueTest(FifoTestMixin, QueuelibTestCase):
+class FifoMemoryQueueTest(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return FifoMemoryQueue()
 
 
-class LifoMemoryQueueTest(LifoTestMixin, QueuelibTestCase):
+class LifoMemoryQueueTest(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return LifoMemoryQueue()
 
 
-class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
 
@@ -324,7 +326,7 @@ class ChunkSize4FifoDiskQueueTest(FifoDiskQueueTest):
     chunksize = 4
 
 
-class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return LifoDiskQueue(self.qpath)
 
@@ -341,11 +343,11 @@ class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
         assert os.path.getsize(self.qpath), size
 
 
-class FifoSQLiteQueueTest(FifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+class FifoSQLiteQueueTest(FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return FifoSQLiteQueue(self.qpath)
 
 
-class LifoSQLiteQueueTest(LifoTestMixin, PersistentTestMixin, QueuelibTestCase):
+class LifoSQLiteQueueTest(LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return LifoSQLiteQueue(self.qpath)
