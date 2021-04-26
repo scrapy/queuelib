@@ -4,7 +4,6 @@ import unittest
 
 
 class QueuelibTestCase(unittest.TestCase):
-
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp(prefix="queuelib-tests-")
         self.qpath = self.tempfilename()
@@ -25,7 +24,6 @@ def track_closed(cls):
     """Wraps a queue class to track down if close() method was called"""
 
     class TrackingClosed(cls):
-
         def __init__(self, *a, **kw):
             super().__init__(*a, **kw)
             self.closed = False
