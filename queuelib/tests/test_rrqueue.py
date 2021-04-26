@@ -13,47 +13,45 @@ from queuelib.queue import (
 from queuelib.tests import QueuelibTestCase, track_closed
 
 
-# hack to prevent py.test from discovering base test class
-class base:
-    class RRQueueTestBase(QueuelibTestCase):
-        def setUp(self):
-            super().setUp()
-            self.q = RoundRobinQueue(self.qfactory)
+class RRQueueTestMixin:
+    def setUp(self):
+        super().setUp()
+        self.q = RoundRobinQueue(self.qfactory)
 
-        def qfactory(self, key):
-            raise NotImplementedError
+    def qfactory(self, key):
+        raise NotImplementedError
 
-        def test_len_nonzero(self):
-            assert not self.q
-            self.assertEqual(len(self.q), 0)
-            self.q.push(b"a", "3")
-            assert self.q
-            self.q.push(b"b", "1")
-            self.q.push(b"c", "2")
-            self.q.push(b"d", "1")
-            self.assertEqual(len(self.q), 4)
-            self.q.pop()
-            self.q.pop()
-            self.q.pop()
-            self.q.pop()
-            assert not self.q
-            self.assertEqual(len(self.q), 0)
+    def test_len_nonzero(self):
+        assert not self.q
+        self.assertEqual(len(self.q), 0)
+        self.q.push(b"a", "3")
+        assert self.q
+        self.q.push(b"b", "1")
+        self.q.push(b"c", "2")
+        self.q.push(b"d", "1")
+        self.assertEqual(len(self.q), 4)
+        self.q.pop()
+        self.q.pop()
+        self.q.pop()
+        self.q.pop()
+        assert not self.q
+        self.assertEqual(len(self.q), 0)
 
-        def test_close(self):
-            self.q.push(b"a", "3")
-            self.q.push(b"b", "1")
-            self.q.push(b"c", "2")
-            self.q.push(b"d", "1")
-            iqueues = self.q.queues.values()
-            self.assertEqual(sorted(self.q.close()), ["1", "2", "3"])
-            assert all(q.closed for q in iqueues)
+    def test_close(self):
+        self.q.push(b"a", "3")
+        self.q.push(b"b", "1")
+        self.q.push(b"c", "2")
+        self.q.push(b"d", "1")
+        iqueues = self.q.queues.values()
+        self.assertEqual(sorted(self.q.close()), ["1", "2", "3"])
+        assert all(q.closed for q in iqueues)
 
-        def test_close_return_active(self):
-            self.q.push(b"b", "1")
-            self.q.push(b"c", "2")
-            self.q.push(b"a", "3")
-            self.q.pop()
-            self.assertEqual(sorted(self.q.close()), ["2", "3"])
+    def test_close_return_active(self):
+        self.q.push(b"b", "1")
+        self.q.push(b"c", "2")
+        self.q.push(b"a", "3")
+        self.q.pop()
+        self.assertEqual(sorted(self.q.close()), ["2", "3"])
 
 
 class FifoTestMixin:
@@ -94,12 +92,12 @@ class LifoTestMixin:
         self.assertEqual(self.q.pop(), None)
 
 
-class FifoMemoryRRQueueTest(FifoTestMixin, base.RRQueueTestBase):
+class FifoMemoryRRQueueTest(RRQueueTestMixin, FifoTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         return track_closed(FifoMemoryQueue)()
 
 
-class LifoMemoryRRQueueTest(LifoTestMixin, base.RRQueueTestBase):
+class LifoMemoryRRQueueTest(RRQueueTestMixin, LifoTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         return track_closed(LifoMemoryQueue)()
 
@@ -129,90 +127,88 @@ class DiskTestMixin:
         self.assertEqual(self.q.close(), [])
 
 
-class FifoDiskRRQueueTest(FifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
+class FifoDiskRRQueueTest(RRQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskRRQueueTest(LifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
+class LifoDiskRRQueueTest(RRQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLiteRRQueueTest(FifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
+class FifoSQLiteRRQueueTest(RRQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLiteRRQueueTest(LifoTestMixin, DiskTestMixin, base.RRQueueTestBase):
+class LifoSQLiteRRQueueTest(RRQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoSQLiteQueue)(path)
 
 
-# hack to prevent py.test from discovering base test class
-class base_start_domains:
-    class RRQueueTestBaseStartDomains(QueuelibTestCase):
-        def setUp(self):
-            super().setUp()
-            self.q = RoundRobinQueue(self.qfactory, start_domains=["1", "2"])
+class RRQueueStartDomainsTestMixin:
+    def setUp(self):
+        super().setUp()
+        self.q = RoundRobinQueue(self.qfactory, start_domains=["1", "2"])
 
-        def qfactory(self, key):
-            raise NotImplementedError
+    def qfactory(self, key):
+        raise NotImplementedError
 
-        def test_push_pop_peek_key(self):
-            self.q.push(b"c", "1")
-            self.q.push(b"d", "2")
-            self.assertEqual(self.q.peek(), b"d")
-            self.assertEqual(self.q.pop(), b"d")
-            self.assertEqual(self.q.peek(), b"c")
-            self.assertEqual(self.q.pop(), b"c")
-            self.assertEqual(self.q.peek(), None)
-            self.assertEqual(self.q.pop(), None)
+    def test_push_pop_peek_key(self):
+        self.q.push(b"c", "1")
+        self.q.push(b"d", "2")
+        self.assertEqual(self.q.peek(), b"d")
+        self.assertEqual(self.q.pop(), b"d")
+        self.assertEqual(self.q.peek(), b"c")
+        self.assertEqual(self.q.pop(), b"c")
+        self.assertEqual(self.q.peek(), None)
+        self.assertEqual(self.q.pop(), None)
 
-        def test_push_pop_peek_key_reversed(self):
-            self.q.push(b"d", "2")
-            self.q.push(b"c", "1")
-            self.assertEqual(self.q.peek(), b"d")
-            self.assertEqual(self.q.pop(), b"d")
-            self.assertEqual(self.q.peek(), b"c")
-            self.assertEqual(self.q.pop(), b"c")
-            self.assertEqual(self.q.peek(), None)
-            self.assertEqual(self.q.pop(), None)
+    def test_push_pop_peek_key_reversed(self):
+        self.q.push(b"d", "2")
+        self.q.push(b"c", "1")
+        self.assertEqual(self.q.peek(), b"d")
+        self.assertEqual(self.q.pop(), b"d")
+        self.assertEqual(self.q.peek(), b"c")
+        self.assertEqual(self.q.pop(), b"c")
+        self.assertEqual(self.q.peek(), None)
+        self.assertEqual(self.q.pop(), None)
 
 
-class FifoMemoryRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class FifoMemoryRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         return track_closed(FifoMemoryQueue)()
 
 
-class LifoMemoryRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class LifoMemoryRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         return track_closed(LifoMemoryQueue)()
 
 
-class FifoDiskRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class FifoDiskRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class LifoDiskRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLiteRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class FifoSQLiteRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLiteRRQueueStartDomainsTest(base_start_domains.RRQueueTestBaseStartDomains):
+class LifoSQLiteRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         path = os.path.join(self.qdir, str(key))
         return track_closed(LifoSQLiteQueue)(path)

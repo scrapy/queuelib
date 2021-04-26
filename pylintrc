@@ -4,12 +4,15 @@ persistent=no
 [FORMAT]
 max-line-length=119
 
+[DESIGN]
+min-public-methods=1
+
 [MESSAGES CONTROL]
-disable=duplicate-code,
+disable=
+        consider-using-with,
+        duplicate-code,
         invalid-name,
         missing-class-docstring,
         missing-function-docstring,
         missing-module-docstring,
-        no-member,
         no-self-use,
-        too-few-public-methods
