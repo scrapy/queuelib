@@ -8,9 +8,11 @@ max-line-length=119
 min-public-methods=1
 
 [MESSAGES CONTROL]
-disable=duplicate-code,
+disable=
+        consider-using-with,
+        duplicate-code,
         invalid-name,
         missing-class-docstring,
         missing-function-docstring,
         missing-module-docstring,
-        no-self-use
+        no-self-use,
