@@ -23,9 +23,7 @@ class RoundRobinQueue:
     first and the next queue for that key is then popped.
     """
 
-    def __init__(
-        self, qfactory: Callable[[Hashable], BaseQueue], start_domains: Iterable[Hashable] = ()
-    ) -> None:
+    def __init__(self, qfactory: Callable[[Hashable], BaseQueue], start_domains: Iterable[Hashable] = ()) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for key in start_domains:

@@ -13,16 +13,22 @@ class _BaseQueueMeta(type):
     """
     Metaclass to check queue classes against the necessary interface
     """
+
     def __instancecheck__(cls, instance):
         return cls.__subclasscheck__(type(instance))  # pylint: disable=no-value-for-parameter
 
     def __subclasscheck__(cls, subclass):
         return (
-            hasattr(subclass, "push") and callable(subclass.push)
-            and hasattr(subclass, "pop") and callable(subclass.pop)
-            and hasattr(subclass, "peek") and callable(subclass.peek)
-            and hasattr(subclass, "close") and callable(subclass.close)
-            and hasattr(subclass, "__len__") and callable(subclass.__len__)
+            hasattr(subclass, "push")
+            and callable(subclass.push)
+            and hasattr(subclass, "pop")
+            and callable(subclass.pop)
+            and hasattr(subclass, "peek")
+            and callable(subclass.peek)
+            and hasattr(subclass, "close")
+            and callable(subclass.close)
+            and hasattr(subclass, "__len__")
+            and callable(subclass.__len__)
         )
 
 
