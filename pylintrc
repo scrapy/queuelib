@@ -1,6 +1,9 @@
 [MASTER]
 persistent=no
 
+[FORMAT]
+max-line-length=119
+
 [DESIGN]
 min-public-methods=1
 
