@@ -1,6 +1,9 @@
 [MASTER]
 persistent=no
 
+[DESIGN]
+min-public-methods=1
+
 [MESSAGES CONTROL]
 disable=duplicate-code,
         invalid-name,
@@ -8,5 +11,4 @@ disable=duplicate-code,
         missing-function-docstring,
         missing-module-docstring,
         no-member,
-        no-self-use,
-        too-few-public-methods
+        no-self-use
