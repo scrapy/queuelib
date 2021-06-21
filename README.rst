@@ -2,23 +2,29 @@
 queuelib
 ========
 
-.. image:: https://secure.travis-ci.org/scrapy/queuelib.png?branch=master
-   :target: http://travis-ci.org/scrapy/queuelib
+.. image:: https://img.shields.io/pypi/v/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://img.shields.io/pypi/pyversions/queuelib.svg
+   :target: https://pypi.python.org/pypi/queuelib
+
+.. image:: https://github.com/scrapy/queuelib/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/scrapy/queuelib/actions/workflows/tests.yml
 
 .. image:: https://img.shields.io/codecov/c/github/scrapy/queuelib/master.svg
    :target: http://codecov.io/github/scrapy/queuelib?branch=master
    :alt: Coverage report
 
 
-Queuelib is a Python library that implements object collections that are
-persisted to disk, provide a simple API, and run fast.
+Queuelib is a Python library that implements object collections which are stored
+in memory or persisted to disk, provide a simple API, and run fast.
 
 Queuelib provides collections for queues_ (FIFO), stacks_ (LIFO), queues
 sorted by priority and queues that are emptied in a round-robin_ fashion.
 
 .. note:: Queuelib collections are not thread-safe.
 
-Queuelib supports Python 2.7 and 3.5+, and has no dependencies.
+Queuelib supports Python 3.5+ and has no dependencies.
 
 .. _queues: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
 .. _round-robin: https://en.wikipedia.org/wiki/Round-robin_scheduling
