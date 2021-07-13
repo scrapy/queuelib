@@ -16,19 +16,19 @@ queuelib
    :alt: Coverage report
 
 
-Queuelib is a collection of persistent (disk-based)
-and non-persistent (memory-based) queues for Python.
+Queuelib is a Python library that implements object collections which are stored
+in memory or persisted to disk, provide a simple API, and run fast.
 
-Queuelib goals are speed and simplicity. It was originally part of the `Scrapy
-framework`_ and stripped out on its own library.
+Queuelib provides collections for queues_ (FIFO), stacks_ (LIFO), queues
+sorted by priority and queues that are emptied in a round-robin_ fashion.
 
-Note: Queuelib isn't thread-safe.
+.. note:: Queuelib collections are not thread-safe.
 
-Requirements
-============
+Queuelib supports Python 3.5+ and has no dependencies.
 
-* Python 3.5+
-* no external library requirements
+.. _queues: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
+.. _round-robin: https://en.wikipedia.org/wiki/Round-robin_scheduling
+.. _stacks: https://en.wikipedia.org/wiki/Stack_(abstract_data_type)
 
 Installation
 ============
