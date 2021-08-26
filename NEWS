@@ -1,6 +1,18 @@
 Queuelib release notes
 ======================
 
+Version 1.6.2
+-------------
+(released on August 26th, 2021)
+
+No functionality changes with respect to 1.6.1
+
+* Added `python_requires>=3.5` to `setup.py`
+* Formatted the codebase with `black`
+* Added type annotations
+* Added CI checks for typing, security and linting
+
+
 Version 1.6.1
 -------------
 (released on April 21st, 2021)
