@@ -20,7 +20,7 @@ from queuelib.tests import QueuelibTestCase
 
 class DummyQueue:
     def __init__(self) -> None:
-        self.q = list()  # type: list
+        self.q: list = []
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
@@ -220,7 +220,7 @@ class PersistentTestMixin:
     def test_non_bytes_raises_typeerror(self):
         q = self.queue()
         self.assertRaises(TypeError, q.push, 0)
-        self.assertRaises(TypeError, q.push, u"")
+        self.assertRaises(TypeError, q.push, "")
         self.assertRaises(TypeError, q.push, None)
         self.assertRaises(TypeError, q.push, lambda x: x)
 
