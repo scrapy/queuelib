@@ -103,7 +103,7 @@ class FifoDiskQueue:
 
     def push(self, string: bytes) -> None:
         if not isinstance(string, bytes):
-            raise TypeError("Unsupported type: {}".format(type(string).__name__))
+            raise TypeError(f"Unsupported type: {type(string).__name__}")
         hnum, hpos = self.info["head"]
         hpos += 1
         szhdr = struct.pack(self.szhdr_format, len(string))
@@ -117,7 +117,7 @@ class FifoDiskQueue:
         self.info["head"] = [hnum, hpos]
 
     def _openchunk(self, number: int, mode: str = "rb"):
-        return open(os.path.join(self.path, "q%05d" % number), mode)
+        return open(os.path.join(self.path, f"q{number:05d}"), mode)
 
     def pop(self) -> Optional[bytes]:
         tnum, tcnt, toffset = self.info["tail"]
@@ -214,7 +214,7 @@ class LifoDiskQueue:
 
     def push(self, string: bytes) -> None:
         if not isinstance(string, bytes):
-            raise TypeError("Unsupported type: {}".format(type(string).__name__))
+            raise TypeError(f"Unsupported type: {type(string).__name__}")
         self.f.write(string)
         ssize = struct.pack(self.SIZE_FORMAT, len(string))
         self.f.write(ssize)
@@ -269,7 +269,7 @@ class FifoSQLiteQueue:
 
     def push(self, item: bytes) -> None:
         if not isinstance(item, bytes):
-            raise TypeError("Unsupported type: {}".format(type(item).__name__))
+            raise TypeError(f"Unsupported type: {type(item).__name__}")
         with self._db as conn:
             conn.execute(self._sql_push, (item,))
 
