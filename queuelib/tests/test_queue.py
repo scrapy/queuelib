@@ -20,7 +20,7 @@ from queuelib.tests import QueuelibTestCase
 
 class DummyQueue:
     def __init__(self) -> None:
-        self.q = []  # type: list
+        self.q: list = []
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
