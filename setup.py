@@ -11,7 +11,7 @@ setup(
     url="https://github.com/scrapy/queuelib",
     packages=find_packages(),
     platforms=["Any"],
-    python_requires=">=3.5",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: BSD License",
