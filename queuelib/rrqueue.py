@@ -1,5 +1,6 @@
 from collections import deque
-from typing import Any, Callable, Hashable, Iterable, List, Optional
+from collections.abc import Hashable
+from typing import Any, Callable, Iterable, List, Optional
 
 from queuelib.queue import BaseQueue
 
