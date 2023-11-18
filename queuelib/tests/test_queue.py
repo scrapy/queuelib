@@ -2,7 +2,7 @@ import os
 import glob
 from abc import abstractmethod
 from unittest import mock
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 import pytest
 
@@ -20,7 +20,7 @@ from queuelib.tests import QueuelibTestCase
 
 class DummyQueue:
     def __init__(self) -> None:
-        self.q: list = []
+        self.q: List[Any] = []
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
