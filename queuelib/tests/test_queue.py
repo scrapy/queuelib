@@ -213,7 +213,6 @@ class LifoTestMixin:
 
 
 class PersistentTestMixin:
-
     chunksize = 100000
 
     @pytest.mark.xfail(reason="Reenable once Scrapy.squeues stops extending from this testsuite")
