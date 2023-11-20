@@ -15,11 +15,12 @@ jobs:
       with:
         python-version: 3.12
 
+    - name: Build
+      run: | 
+        pip install --upgrade build twine
+        python -m build
+
     - name: Publish to PyPI
-      run: |
-        pip install --upgrade pip
-        pip install --upgrade setuptools wheel twine
-        python setup.py sdist bdist_wheel
-        export TWINE_USERNAME=__token__
-        export TWINE_PASSWORD=${{ secrets.PYPI_TOKEN }}
-        twine upload dist/*
+      uses: pypa/gh-action-pypi-publish@v1.8.10
+      with:
+        password: ${{ secrets.PYPI_TOKEN }}

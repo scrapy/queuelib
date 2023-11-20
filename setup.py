@@ -10,6 +10,9 @@ setup(
     author_email="info@scrapy.org",
     url="https://github.com/scrapy/queuelib",
     packages=find_packages(),
+    package_data={
+        "queuelib": ["py.typed"],
+    },
     platforms=["Any"],
     python_requires=">=3.8",
     classifiers=[

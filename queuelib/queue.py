@@ -6,7 +6,7 @@ import struct
 from abc import abstractmethod
 from collections import deque
 from contextlib import suppress
-from typing import Any, Optional
+from typing import Any, Optional, Deque, BinaryIO, Literal, cast, Dict
 
 
 class _BaseQueueMeta(type):
@@ -14,10 +14,10 @@ class _BaseQueueMeta(type):
     Metaclass to check queue classes against the necessary interface
     """
 
-    def __instancecheck__(cls, instance):
+    def __instancecheck__(cls, instance: Any) -> bool:
         return cls.__subclasscheck__(type(instance))  # pylint: disable=no-value-for-parameter
 
-    def __subclasscheck__(cls, subclass):
+    def __subclasscheck__(cls, subclass: Any) -> bool:
         return (
             hasattr(subclass, "push")
             and callable(subclass.push)
@@ -46,7 +46,7 @@ class BaseQueue(metaclass=_BaseQueueMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def __len__(self):
+    def __len__(self) -> int:
         raise NotImplementedError()
 
     def close(self) -> None:
@@ -57,7 +57,7 @@ class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
     def __init__(self) -> None:
-        self.q = deque()  # type: deque
+        self.q: Deque[Any] = deque()
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
@@ -71,7 +71,7 @@ class FifoMemoryQueue:
     def close(self) -> None:
         pass
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.q)
 
 
@@ -116,7 +116,7 @@ class FifoDiskQueue:
         self.info["size"] += 1
         self.info["head"] = [hnum, hpos]
 
-    def _openchunk(self, number: int, mode: str = "rb"):
+    def _openchunk(self, number: int, mode: Literal["rb", "ab+"] = "rb") -> BinaryIO:
         return open(os.path.join(self.path, f"q{number:05d}"), mode)
 
     def pop(self) -> Optional[bytes]:
@@ -163,13 +163,13 @@ class FifoDiskQueue:
             self._cleanup()
 
     def __len__(self) -> int:
-        return self.info["size"]
+        return cast(int, self.info["size"])
 
-    def _loadinfo(self, chunksize: int) -> dict:
+    def _loadinfo(self, chunksize: int) -> Dict[str, Any]:
         infopath = self._infopath()
         if os.path.exists(infopath):
             with open(infopath) as f:
-                info = json.load(f)
+                info = cast(Dict[str, Any], json.load(f))
         else:
             info = {
                 "chunksize": chunksize,
@@ -179,7 +179,7 @@ class FifoDiskQueue:
             }
         return info
 
-    def _saveinfo(self, info: dict) -> None:
+    def _saveinfo(self, info: Dict[str, Any]) -> None:
         with open(self._infopath(), "w") as f:
             json.dump(info, f)
 
@@ -201,6 +201,7 @@ class LifoDiskQueue:
     SIZE_SIZE = struct.calcsize(SIZE_FORMAT)
 
     def __init__(self, path: str) -> None:
+        self.size: int
         self.path = path
         if os.path.exists(path):
             self.f = open(path, "rb+")
@@ -277,13 +278,13 @@ class FifoSQLiteQueue:
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
-                return item
+                return cast(bytes, item)
         return None
 
     def peek(self) -> Optional[bytes]:
         with self._db as conn:
             for _, item in conn.execute(self._sql_pop):
-                return item
+                return cast(bytes, item)
         return None
 
     def close(self) -> None:
@@ -294,7 +295,7 @@ class FifoSQLiteQueue:
 
     def __len__(self) -> int:
         with self._db as conn:
-            return next(conn.execute(self._sql_size))[0]
+            return cast(int, next(conn.execute(self._sql_size))[0])
 
 
 class LifoSQLiteQueue(FifoSQLiteQueue):
