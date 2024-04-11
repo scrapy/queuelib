@@ -1,11 +1,12 @@
 import os
+
 from queuelib.pqueue import PriorityQueue
 from queuelib.queue import (
-    FifoMemoryQueue,
-    LifoMemoryQueue,
     FifoDiskQueue,
-    LifoDiskQueue,
+    FifoMemoryQueue,
     FifoSQLiteQueue,
+    LifoDiskQueue,
+    LifoMemoryQueue,
     LifoSQLiteQueue,
 )
 from queuelib.tests import QueuelibTestCase, track_closed
@@ -174,25 +175,33 @@ class DiskTestMixin:
         self.assertEqual(q2.close(), [])
 
 
-class FifoDiskPriorityQueueTest(PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase):
+class FifoDiskPriorityQueueTest(
+    PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
+):
     def qfactory(self, prio):
         path = os.path.join(self.qdir, str(prio))
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskPriorityQueueTest(PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase):
+class LifoDiskPriorityQueueTest(
+    PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
+):
     def qfactory(self, prio):
         path = os.path.join(self.qdir, str(prio))
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLitePriorityQueueTest(PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase):
+class FifoSQLitePriorityQueueTest(
+    PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
+):
     def qfactory(self, prio):
         path = os.path.join(self.qdir, str(prio))
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLitePriorityQueueTest(PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase):
+class LifoSQLitePriorityQueueTest(
+    PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
+):
     def qfactory(self, prio):
         path = os.path.join(self.qdir, str(prio))
         return track_closed(LifoSQLiteQueue)(path)
