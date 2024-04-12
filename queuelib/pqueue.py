@@ -27,7 +27,9 @@ class PriorityQueue:
 
     """
 
-    def __init__(self, qfactory: Callable[[int], BaseQueue], startprios: Iterable[int] = ()) -> None:
+    def __init__(
+        self, qfactory: Callable[[int], BaseQueue], startprios: Iterable[int] = ()
+    ) -> None:
         self.queues = {}
         self.qfactory = qfactory
         for p in startprios:

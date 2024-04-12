@@ -6,7 +6,7 @@ import struct
 from abc import abstractmethod
 from collections import deque
 from contextlib import suppress
-from typing import Any, Optional, Deque, BinaryIO, Literal, cast, Dict
+from typing import Any, BinaryIO, Deque, Dict, Literal, Optional, cast
 
 
 class _BaseQueueMeta(type):
@@ -15,7 +15,9 @@ class _BaseQueueMeta(type):
     """
 
     def __instancecheck__(cls, instance: Any) -> bool:
-        return cls.__subclasscheck__(type(instance))  # pylint: disable=no-value-for-parameter
+        return cls.__subclasscheck__(  # pylint: disable=no-value-for-parameter
+            type(instance)
+        )
 
     def __subclasscheck__(cls, subclass: Any) -> bool:
         return (

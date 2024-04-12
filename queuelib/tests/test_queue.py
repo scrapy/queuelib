@@ -1,18 +1,18 @@
-import os
 import glob
+import os
 from abc import abstractmethod
+from typing import Any, List, Optional
 from unittest import mock
-from typing import Any, Optional, List
 
 import pytest
 
 from queuelib.queue import (
     BaseQueue,
-    FifoMemoryQueue,
-    LifoMemoryQueue,
     FifoDiskQueue,
-    LifoDiskQueue,
+    FifoMemoryQueue,
     FifoSQLiteQueue,
+    LifoDiskQueue,
+    LifoMemoryQueue,
     LifoSQLiteQueue,
 )
 from queuelib.tests import QueuelibTestCase
@@ -215,7 +215,9 @@ class LifoTestMixin:
 class PersistentTestMixin:
     chunksize = 100000
 
-    @pytest.mark.xfail(reason="Reenable once Scrapy.squeues stops extending from this testsuite")
+    @pytest.mark.xfail(
+        reason="Reenable once Scrapy.squeues stops extending from this testsuite"
+    )
     def test_non_bytes_raises_typeerror(self):
         q = self.queue()
         self.assertRaises(TypeError, q.push, 0)
@@ -280,7 +282,9 @@ class LifoMemoryQueueTest(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
         return LifoMemoryQueue()
 
 
-class FifoDiskQueueTest(FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
+class FifoDiskQueueTest(
+    FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
+):
     def queue(self):
         return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
 
@@ -325,7 +329,9 @@ class ChunkSize4FifoDiskQueueTest(FifoDiskQueueTest):
     chunksize = 4
 
 
-class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
+class LifoDiskQueueTest(
+    LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
+):
     def queue(self):
         return LifoDiskQueue(self.qpath)
 
@@ -342,11 +348,15 @@ class LifoDiskQueueTest(LifoTestMixin, PersistentTestMixin, QueueTestMixin, Queu
         assert os.path.getsize(self.qpath), size
 
 
-class FifoSQLiteQueueTest(FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
+class FifoSQLiteQueueTest(
+    FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
+):
     def queue(self):
         return FifoSQLiteQueue(self.qpath)
 
 
-class LifoSQLiteQueueTest(LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase):
+class LifoSQLiteQueueTest(
+    LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
+):
     def queue(self):
         return LifoSQLiteQueue(self.qpath)
