@@ -15,9 +15,9 @@ class _BaseQueueMeta(type):
     """
 
     def __instancecheck__(cls, instance: Any) -> bool:
-        return cls.__subclasscheck__(
+        return cls.__subclasscheck__(  # pylint: disable=no-value-for-parameter
             type(instance)
-        )  # pylint: disable=no-value-for-parameter
+        )
 
     def __subclasscheck__(cls, subclass: Any) -> bool:
         return (
