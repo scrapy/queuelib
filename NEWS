@@ -1,6 +1,19 @@
 Queuelib release notes
 ======================
 
+Version 1.7.0
+-------------
+(released on XXXX)
+
+No functionality changes with respect to 1.6.2
+
+* Added support for Python 3.10-3.12 and PyPy 3.10
+* Removed support for Python 3.5-3.7
+* Improved type annotations and added the ``py.typed`` file
+* Added ``pre-commit`` configuration
+* Improved linting and CI configuration
+
+
 Version 1.6.2
 -------------
 (released on August 26th, 2021)
