@@ -6,6 +6,7 @@ setup(
     license="BSD",
     description="Collection of persistent (disk-based) and non-persistent (memory-based) queues",
     long_description=open("README.rst").read(),
+    long_description_content_type="text/x-rst",
     author="Scrapy project",
     author_email="info@scrapy.org",
     url="https://github.com/scrapy/queuelib",
