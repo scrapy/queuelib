@@ -9,7 +9,7 @@ repos:
   hooks:
   - id: flake8
 - repo: https://github.com/psf/black.git
-  rev: 24.3.0
+  rev: 24.4.2
   hooks:
   - id: black
 - repo: https://github.com/pycqa/isort
