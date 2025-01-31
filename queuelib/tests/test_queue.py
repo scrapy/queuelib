@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import glob
 import os
 from abc import abstractmethod
-from typing import Any, List, Optional
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -20,15 +22,15 @@ from queuelib.tests import QueuelibTestCase
 
 class DummyQueue:
     def __init__(self) -> None:
-        self.q: List[Any] = []
+        self.q: list[Any] = []
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         return self.q.pop() if self.q else None
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         return self.q[-1] if self.q else None
 
     def close(self) -> None:

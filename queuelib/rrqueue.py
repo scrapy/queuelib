@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from collections import deque
-from collections.abc import Hashable
-from typing import Any, Callable, Iterable, List, Optional
+from collections.abc import Hashable, Iterable
+from typing import Any, Callable
 
 from queuelib.queue import BaseQueue
 
@@ -42,14 +44,14 @@ class RoundRobinQueue:
         q = self.queues[key]
         q.push(obj)  # this may fail (eg. serialization error)
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         try:
             key = self.key_queue[-1]
         except IndexError:
             return None
         return self.queues[key].peek()
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         # pop until we find a valid object, closing necessary queues
         while True:
             try:
@@ -69,7 +71,7 @@ class RoundRobinQueue:
             if m:
                 return m
 
-    def close(self) -> List[Hashable]:
+    def close(self) -> list[Hashable]:
         active = []
         for k, q in self.queues.items():
             if len(q):

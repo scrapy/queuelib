@@ -1,4 +1,7 @@
-from typing import Any, Callable, Iterable, List, Optional
+from __future__ import annotations
+
+from collections.abc import Iterable
+from typing import Any, Callable
 
 from queuelib.queue import BaseQueue
 
@@ -44,7 +47,7 @@ class PriorityQueue:
         if self.curprio is None or priority < self.curprio:
             self.curprio = priority
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         if self.curprio is None:
             return None
         q = self.queues[self.curprio]
@@ -56,12 +59,12 @@ class PriorityQueue:
             self.curprio = min(prios) if prios else None
         return m
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         if self.curprio is None:
             return None
         return self.queues[self.curprio].peek()
 
-    def close(self) -> List[int]:
+    def close(self) -> list[int]:
         active = []
         for p, q in self.queues.items():
             if len(q):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import glob
 import json
 import os
@@ -6,7 +8,7 @@ import struct
 from abc import abstractmethod
 from collections import deque
 from contextlib import suppress
-from typing import Any, BinaryIO, Deque, Dict, Literal, Optional, cast
+from typing import Any, BinaryIO, Deque, Literal, cast
 
 
 class _BaseQueueMeta(type):
@@ -40,11 +42,11 @@ class BaseQueue(metaclass=_BaseQueueMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         raise NotImplementedError()
 
     @abstractmethod
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -64,10 +66,10 @@ class FifoMemoryQueue:
     def push(self, obj: Any) -> None:
         self.q.append(obj)
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         return self.q.popleft() if self.q else None
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         return self.q[0] if self.q else None
 
     def close(self) -> None:
@@ -80,10 +82,10 @@ class FifoMemoryQueue:
 class LifoMemoryQueue(FifoMemoryQueue):
     """In-memory LIFO queue, API compliant with LifoDiskQueue."""
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         return self.q.pop() if self.q else None
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         return self.q[-1] if self.q else None
 
 
@@ -121,7 +123,7 @@ class FifoDiskQueue:
     def _openchunk(self, number: int, mode: Literal["rb", "ab+"] = "rb") -> BinaryIO:
         return open(os.path.join(self.path, f"q{number:05d}"), mode)
 
-    def pop(self) -> Optional[bytes]:
+    def pop(self) -> bytes | None:
         tnum, tcnt, toffset = self.info["tail"]
         if [tnum, tcnt] >= self.info["head"]:
             return None
@@ -143,7 +145,7 @@ class FifoDiskQueue:
         self.info["tail"] = [tnum, tcnt, toffset]
         return data
 
-    def peek(self) -> Optional[bytes]:
+    def peek(self) -> bytes | None:
         tnum, tcnt, _ = self.info["tail"]
         if [tnum, tcnt] >= self.info["head"]:
             return None
@@ -167,11 +169,11 @@ class FifoDiskQueue:
     def __len__(self) -> int:
         return cast(int, self.info["size"])
 
-    def _loadinfo(self, chunksize: int) -> Dict[str, Any]:
+    def _loadinfo(self, chunksize: int) -> dict[str, Any]:
         infopath = self._infopath()
         if os.path.exists(infopath):
             with open(infopath) as f:
-                info = cast(Dict[str, Any], json.load(f))
+                info = cast(dict[str, Any], json.load(f))
         else:
             info = {
                 "chunksize": chunksize,
@@ -181,7 +183,7 @@ class FifoDiskQueue:
             }
         return info
 
-    def _saveinfo(self, info: Dict[str, Any]) -> None:
+    def _saveinfo(self, info: dict[str, Any]) -> None:
         with open(self._infopath(), "w") as f:
             json.dump(info, f)
 
@@ -223,7 +225,7 @@ class LifoDiskQueue:
         self.f.write(ssize)
         self.size += 1
 
-    def pop(self) -> Optional[bytes]:
+    def pop(self) -> bytes | None:
         if not self.size:
             return None
         self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
@@ -235,7 +237,7 @@ class LifoDiskQueue:
         self.size -= 1
         return data
 
-    def peek(self) -> Optional[bytes]:
+    def peek(self) -> bytes | None:
         if not self.size:
             return None
         self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
@@ -276,14 +278,14 @@ class FifoSQLiteQueue:
         with self._db as conn:
             conn.execute(self._sql_push, (item,))
 
-    def pop(self) -> Optional[bytes]:
+    def pop(self) -> bytes | None:
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
                 return cast(bytes, item)
         return None
 
-    def peek(self) -> Optional[bytes]:
+    def peek(self) -> bytes | None:
         with self._db as conn:
             for _, item in conn.execute(self._sql_pop):
                 return cast(bytes, item)
