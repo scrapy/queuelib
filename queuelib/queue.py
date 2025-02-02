@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import glob
 import json
 import os
 import sqlite3
@@ -8,7 +7,8 @@ import struct
 from abc import abstractmethod
 from collections import deque
 from contextlib import suppress
-from typing import Any, BinaryIO, Deque, Literal, cast
+from pathlib import Path
+from typing import Any, BinaryIO, Literal, cast
 
 
 class _BaseQueueMeta(type):
@@ -39,19 +39,19 @@ class _BaseQueueMeta(type):
 class BaseQueue(metaclass=_BaseQueueMeta):
     @abstractmethod
     def push(self, obj: Any) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def pop(self) -> Any | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def peek(self) -> Any | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def close(self) -> None:
         pass
@@ -61,7 +61,7 @@ class FifoMemoryQueue:
     """In-memory FIFO queue, API compliant with FifoDiskQueue."""
 
     def __init__(self) -> None:
-        self.q: Deque[Any] = deque()
+        self.q: deque[Any] = deque()
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
@@ -95,10 +95,10 @@ class FifoDiskQueue:
     szhdr_format = ">L"
     szhdr_size = struct.calcsize(szhdr_format)
 
-    def __init__(self, path: str, chunksize: int = 100000) -> None:
-        self.path = path
-        if not os.path.exists(path):
-            os.makedirs(path)
+    def __init__(self, path: str | os.PathLike[str], chunksize: int = 100000) -> None:
+        self.path = str(path)
+        if not Path(path).exists():
+            Path(path).mkdir(parents=True)
         self.info = self._loadinfo(chunksize)
         self.chunksize = self.info["chunksize"]
         self.headf = self._openchunk(self.info["head"][0], "ab+")
@@ -121,7 +121,7 @@ class FifoDiskQueue:
         self.info["head"] = [hnum, hpos]
 
     def _openchunk(self, number: int, mode: Literal["rb", "ab+"] = "rb") -> BinaryIO:
-        return open(os.path.join(self.path, f"q{number:05d}"), mode)
+        return Path(self.path, f"q{number:05d}").open(mode)
 
     def pop(self) -> bytes | None:
         tnum, tcnt, toffset = self.info["tail"]
@@ -139,7 +139,7 @@ class FifoDiskQueue:
             tcnt = toffset = 0
             tnum += 1
             self.tailf.close()
-            os.remove(self.tailf.name)
+            Path(self.tailf.name).unlink()
             self.tailf = self._openchunk(tnum)
         self.info["size"] -= 1
         self.info["tail"] = [tnum, tcnt, toffset]
@@ -171,9 +171,8 @@ class FifoDiskQueue:
 
     def _loadinfo(self, chunksize: int) -> dict[str, Any]:
         infopath = self._infopath()
-        if os.path.exists(infopath):
-            with open(infopath) as f:
-                info = cast(dict[str, Any], json.load(f))
+        if infopath.exists():
+            info = cast(dict[str, Any], json.loads(infopath.read_text()))
         else:
             info = {
                 "chunksize": chunksize,
@@ -184,18 +183,17 @@ class FifoDiskQueue:
         return info
 
     def _saveinfo(self, info: dict[str, Any]) -> None:
-        with open(self._infopath(), "w") as f:
-            json.dump(info, f)
+        self._infopath().write_text(json.dumps(info))
 
-    def _infopath(self) -> str:
-        return os.path.join(self.path, "info.json")
+    def _infopath(self) -> Path:
+        return Path(self.path, "info.json")
 
     def _cleanup(self) -> None:
-        for x in glob.glob(os.path.join(self.path, "q*")):
-            os.remove(x)
-        os.remove(os.path.join(self.path, "info.json"))
+        for x in Path(self.path).glob("q*"):
+            x.unlink()
+        Path(self.path, "info.json").unlink()
         with suppress(OSError):
-            os.rmdir(self.path)
+            Path(self.path).rmdir()
 
 
 class LifoDiskQueue:
@@ -204,16 +202,16 @@ class LifoDiskQueue:
     SIZE_FORMAT = ">L"
     SIZE_SIZE = struct.calcsize(SIZE_FORMAT)
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str | os.PathLike[str]) -> None:
         self.size: int
-        self.path = path
-        if os.path.exists(path):
-            self.f = open(path, "rb+")
+        self.path = str(path)
+        if Path(path).exists():
+            self.f = Path(path).open("rb+")  # noqa: SIM115
             qsize = self.f.read(self.SIZE_SIZE)
             (self.size,) = struct.unpack(self.SIZE_FORMAT, qsize)
             self.f.seek(0, os.SEEK_END)
         else:
-            self.f = open(path, "wb+")
+            self.f = Path(path).open("wb+")  # noqa: SIM115
             self.f.write(struct.pack(self.SIZE_FORMAT, 0))
             self.size = 0
 
@@ -243,8 +241,7 @@ class LifoDiskQueue:
         self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
         (size,) = struct.unpack(self.SIZE_FORMAT, self.f.read())
         self.f.seek(-size - self.SIZE_SIZE, os.SEEK_END)
-        data = self.f.read(size)
-        return data
+        return self.f.read(size)
 
     def close(self) -> None:
         if self.size:
@@ -252,7 +249,7 @@ class LifoDiskQueue:
             self.f.write(struct.pack(self.SIZE_FORMAT, self.size))
         self.f.close()
         if not self.size:
-            os.remove(self.path)
+            Path(self.path).unlink()
 
     def __len__(self) -> int:
         return self.size
@@ -265,8 +262,8 @@ class FifoSQLiteQueue:
     _sql_pop = "SELECT id, item FROM queue ORDER BY id LIMIT 1"
     _sql_del = "DELETE FROM queue WHERE id = ?"
 
-    def __init__(self, path: str) -> None:
-        self._path = os.path.abspath(path)
+    def __init__(self, path: str | os.PathLike[str]) -> None:
+        self._path = Path(path).resolve()
         self._db = sqlite3.Connection(self._path, timeout=60)
         self._db.text_factory = bytes
         with self._db as conn:
@@ -295,7 +292,7 @@ class FifoSQLiteQueue:
         size = len(self)
         self._db.close()
         if not size:
-            os.remove(self._path)
+            self._path.unlink()
 
     def __len__(self) -> int:
         with self._db as conn:

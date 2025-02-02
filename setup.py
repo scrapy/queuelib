@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
 
 setup(
@@ -5,7 +7,7 @@ setup(
     version="1.7.0",
     license="BSD",
     description="Collection of persistent (disk-based) and non-persistent (memory-based) queues",
-    long_description=open("README.rst").read(),
+    long_description=Path("README.rst").read_text(encoding="utf-8"),
     long_description_content_type="text/x-rst",
     author="Scrapy project",
     author_email="info@scrapy.org",
