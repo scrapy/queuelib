@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from pathlib import Path
 from typing import Any
 from unittest import mock
 
@@ -293,7 +292,7 @@ class FifoDiskQueueTest(
         q = self.queue()
         q.push(b"something")
         with (
-            Path(self.tempfilename()).open("w+") as empty_file,
+            self.tempfilename().open("w+") as empty_file,
             mock.patch.object(q, "tailf", empty_file),
         ):
             assert q.peek() is None
