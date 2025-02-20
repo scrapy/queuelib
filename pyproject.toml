@@ -16,15 +16,9 @@ omit = [
     "queuelib/tests/*",
 ]
 
-[tool.mypy]
-check_untyped_defs = true
-ignore_missing_imports = true
-no_warn_no_return = true
-
 [[tool.mypy.overrides]]
 module = "queuelib.tests.*"
 allow_untyped_defs = true
-allow_untyped_calls = true
 check_untyped_defs = false
 
 [tool.pylint.MASTER]

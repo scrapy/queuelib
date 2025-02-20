@@ -10,14 +10,14 @@ class QueuelibTestCase(unittest.TestCase):
         self.qpath: Path = self.tempfilename()
         self.qdir = self.mkdtemp()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
     def tempfilename(self) -> Path:
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as nf:
             return Path(nf.name)
 
-    def mkdtemp(self):
+    def mkdtemp(self) -> str:
         return tempfile.mkdtemp(dir=self.tmpdir)
 
 
