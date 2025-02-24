@@ -1,22 +1,23 @@
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 
 class QueuelibTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmpdir = tempfile.mkdtemp(prefix="queuelib-tests-")
-        self.qpath = self.tempfilename()
+        self.qpath: Path = self.tempfilename()
         self.qdir = self.mkdtemp()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tmpdir)
 
-    def tempfilename(self):
+    def tempfilename(self) -> Path:
         with tempfile.NamedTemporaryFile(dir=self.tmpdir) as nf:
-            return nf.name
+            return Path(nf.name)
 
-    def mkdtemp(self):
+    def mkdtemp(self) -> str:
         return tempfile.mkdtemp(dir=self.tmpdir)
 
 

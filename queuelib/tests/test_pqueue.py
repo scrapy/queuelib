@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from queuelib.pqueue import PriorityQueue
 from queuelib.queue import (
@@ -179,7 +179,7 @@ class FifoDiskPriorityQueueTest(
     PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
-        path = os.path.join(self.qdir, str(prio))
+        path = Path(self.qdir, str(prio))
         return track_closed(FifoDiskQueue)(path)
 
 
@@ -187,7 +187,7 @@ class LifoDiskPriorityQueueTest(
     PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
-        path = os.path.join(self.qdir, str(prio))
+        path = Path(self.qdir, str(prio))
         return track_closed(LifoDiskQueue)(path)
 
 
@@ -195,7 +195,7 @@ class FifoSQLitePriorityQueueTest(
     PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
-        path = os.path.join(self.qdir, str(prio))
+        path = Path(self.qdir, str(prio))
         return track_closed(FifoSQLiteQueue)(path)
 
 
@@ -203,5 +203,5 @@ class LifoSQLitePriorityQueueTest(
     PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
-        path = os.path.join(self.qdir, str(prio))
+        path = Path(self.qdir, str(prio))
         return track_closed(LifoSQLiteQueue)(path)

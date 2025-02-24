@@ -1,7 +1,7 @@
-import glob
-import os
+from __future__ import annotations
+
 from abc import abstractmethod
-from typing import Any, List, Optional
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -20,15 +20,15 @@ from queuelib.tests import QueuelibTestCase
 
 class DummyQueue:
     def __init__(self) -> None:
-        self.q: List[Any] = []
+        self.q: list[Any] = []
 
     def push(self, obj: Any) -> None:
         self.q.append(obj)
 
-    def pop(self) -> Optional[Any]:
+    def pop(self) -> Any | None:
         return self.q.pop() if self.q else None
 
-    def peek(self) -> Optional[Any]:
+    def peek(self) -> Any | None:
         return self.q[-1] if self.q else None
 
     def close(self) -> None:
@@ -78,7 +78,7 @@ class InterfaceTest(QueuelibTestCase):
 class QueueTestMixin:
     @abstractmethod
     def queue(self) -> BaseQueue:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def test_empty(self):
         """Empty queue test"""
@@ -262,14 +262,14 @@ class PersistentTestMixin:
         """Test queue dir is removed if queue is empty"""
         q = self.queue()
         values = [b"0", b"1", b"2", b"3", b"4"]
-        assert os.path.exists(self.qpath)
+        assert self.qpath.exists()
         for x in values:
             q.push(x)
 
-        for x in values:
+        for _ in values:
             q.pop()
         q.close()
-        assert not os.path.exists(self.qpath)
+        assert not self.qpath.exists()
 
 
 class FifoMemoryQueueTest(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
@@ -291,11 +291,12 @@ class FifoDiskQueueTest(
     def test_not_szhdr(self):
         q = self.queue()
         q.push(b"something")
-        empty_file = open(self.tempfilename(), "w+")
-        with mock.patch.object(q, "tailf", empty_file):
+        with (
+            self.tempfilename().open("w+") as empty_file,
+            mock.patch.object(q, "tailf", empty_file),
+        ):
             assert q.peek() is None
             assert q.pop() is None
-        empty_file.close()
 
     def test_chunks(self):
         """Test chunks are created and removed"""
@@ -304,12 +305,12 @@ class FifoDiskQueueTest(
         for x in values:
             q.push(x)
 
-        chunks = glob.glob(os.path.join(self.qpath, "q*"))
+        chunks = list(self.qpath.glob("q*"))
         self.assertEqual(len(chunks), 5 // self.chunksize + 1)
-        for x in values:
+        for _ in values:
             q.pop()
 
-        chunks = glob.glob(os.path.join(self.qpath, "q*"))
+        chunks = list(self.qpath.glob("q*"))
         self.assertEqual(len(chunks), 1)
 
 
@@ -341,11 +342,11 @@ class LifoDiskQueueTest(
         q.push(b"a")
         q.push(b"b")
         q.close()
-        size = os.path.getsize(self.qpath)
+        size = self.qpath.stat().st_size
         q = self.queue()
         q.pop()
         q.close()
-        assert os.path.getsize(self.qpath), size
+        assert self.qpath.stat().st_size, size
 
 
 class FifoSQLiteQueueTest(
