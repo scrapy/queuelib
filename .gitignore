@@ -5,3 +5,6 @@ coverage.xml
 *egg-info
 *.pyc
 /.tox/
+build/
+dist/
+.idea/
