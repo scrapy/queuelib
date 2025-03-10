@@ -11,6 +11,7 @@ class QueuelibTestCase(unittest.TestCase):
         self.qdir = self.mkdtemp()
 
     def tearDown(self) -> None:
+        shutil.rmtree(self.qdir)
         shutil.rmtree(self.tmpdir)
 
     def tempfilename(self) -> Path:

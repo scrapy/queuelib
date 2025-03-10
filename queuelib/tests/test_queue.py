@@ -84,11 +84,13 @@ class QueueTestMixin:
         """Empty queue test"""
         q = self.queue()
         assert q.pop() is None
+        q.close()
 
     def test_single_pushpop(self):
         q = self.queue()
         q.push(b"a")
         assert q.pop() == b"a"
+        q.close()
 
     def test_binary_element(self):
         elem = (
@@ -101,6 +103,7 @@ class QueueTestMixin:
         q = self.queue()
         q.push(elem)
         assert q.pop() == elem
+        q.close()
 
     def test_len(self):
         q = self.queue()
@@ -114,6 +117,7 @@ class QueueTestMixin:
         q.pop()
         q.pop()
         self.assertEqual(len(q), 0)
+        q.close()
 
     def test_peek_one_element(self):
         q = self.queue()
@@ -122,6 +126,7 @@ class QueueTestMixin:
         self.assertEqual(q.peek(), b"a")
         self.assertEqual(q.pop(), b"a")
         self.assertIsNone(q.peek())
+        q.close()
 
 
 class FifoTestMixin:
@@ -135,6 +140,7 @@ class FifoTestMixin:
         self.assertEqual(q.pop(), b"b")
         self.assertEqual(q.pop(), b"c")
         self.assertEqual(q.pop(), None)
+        q.close()
 
     def test_push_pop2(self):
         """Test interleaved push and pops"""
@@ -149,6 +155,7 @@ class FifoTestMixin:
         self.assertEqual(q.pop(), b"c")
         self.assertEqual(q.pop(), b"d")
         self.assertEqual(q.pop(), b"e")
+        q.close()
 
     def test_peek_fifo(self):
         q = self.queue()
@@ -166,6 +173,7 @@ class FifoTestMixin:
         self.assertEqual(q.peek(), b"c")
         self.assertEqual(q.pop(), b"c")
         self.assertIsNone(q.peek())
+        q.close()
 
 
 class LifoTestMixin:
@@ -179,6 +187,7 @@ class LifoTestMixin:
         self.assertEqual(q.pop(), b"b")
         self.assertEqual(q.pop(), b"a")
         self.assertEqual(q.pop(), None)
+        q.close()
 
     def test_push_pop2(self):
         """Test interleaved push and pops"""
@@ -193,6 +202,7 @@ class LifoTestMixin:
         self.assertEqual(q.pop(), b"e")
         self.assertEqual(q.pop(), b"b")
         self.assertEqual(q.pop(), b"a")
+        q.close()
 
     def test_peek_lifo(self):
         q = self.queue()
@@ -210,6 +220,7 @@ class LifoTestMixin:
         self.assertEqual(q.peek(), b"a")
         self.assertEqual(q.pop(), b"a")
         self.assertIsNone(q.peek())
+        q.close()
 
 
 class PersistentTestMixin:
@@ -224,6 +235,7 @@ class PersistentTestMixin:
         self.assertRaises(TypeError, q.push, "")
         self.assertRaises(TypeError, q.push, None)
         self.assertRaises(TypeError, q.push, lambda x: x)
+        q.close()
 
     def test_text_in_windows(self):
         e1 = b"\r\n"
@@ -233,6 +245,7 @@ class PersistentTestMixin:
         q = self.queue()
         e2 = q.pop()
         self.assertEqual(e1, e2)
+        q.close()
 
     def test_close_open(self):
         """Test closing and re-opening keeps state"""
@@ -257,6 +270,7 @@ class PersistentTestMixin:
         q = self.queue()
         assert q.pop() is not None
         self.assertEqual(len(q), 0)
+        q.close()
 
     def test_cleanup(self):
         """Test queue dir is removed if queue is empty"""
@@ -297,6 +311,7 @@ class FifoDiskQueueTest(
         ):
             assert q.peek() is None
             assert q.pop() is None
+        q.close()
 
     def test_chunks(self):
         """Test chunks are created and removed"""
@@ -312,6 +327,7 @@ class FifoDiskQueueTest(
 
         chunks = list(self.qpath.glob("q*"))
         self.assertEqual(len(chunks), 1)
+        q.close()
 
 
 class ChunkSize1FifoDiskQueueTest(FifoDiskQueueTest):
