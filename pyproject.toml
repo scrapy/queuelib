@@ -16,6 +16,11 @@ omit = [
     "queuelib/tests/*",
 ]
 
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+]
+
 [[tool.mypy.overrides]]
 module = "queuelib.tests.*"
 allow_untyped_defs = true
