@@ -12,7 +12,6 @@ class QueuelibTestCase(unittest.TestCase):
 
     def tearDown(self) -> None:
         shutil.rmtree(self.qdir)
-        self.qpath.unlink()
         shutil.rmtree(self.tmpdir)
 
     def tempfilename(self) -> Path:
