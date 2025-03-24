@@ -8,8 +8,8 @@ queuelib
 .. image:: https://img.shields.io/pypi/pyversions/queuelib.svg
    :target: https://pypi.python.org/pypi/queuelib
 
-.. image:: https://github.com/scrapy/queuelib/actions/workflows/tests.yml/badge.svg
-   :target: https://github.com/scrapy/queuelib/actions/workflows/tests.yml
+.. image:: https://github.com/scrapy/queuelib/actions/workflows/tests-ubuntu.yml/badge.svg
+   :target: https://github.com/scrapy/queuelib/actions/workflows/tests-ubuntu.yml
 
 .. image:: https://img.shields.io/codecov/c/github/scrapy/queuelib/master.svg
    :target: http://codecov.io/github/scrapy/queuelib?branch=master
@@ -24,7 +24,7 @@ sorted by priority and queues that are emptied in a round-robin_ fashion.
 
 .. note:: Queuelib collections are not thread-safe.
 
-Queuelib supports Python 3.5+ and has no dependencies.
+Queuelib supports Python 3.9+ and has no dependencies.
 
 .. _queues: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
 .. _round-robin: https://en.wikipedia.org/wiki/Round-robin_scheduling
