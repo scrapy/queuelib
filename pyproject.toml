@@ -1,11 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "queuelib"
+description = "Collection of persistent (disk-based) and non-persistent (memory-based) queues"
+readme = "README.rst"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [{ name = "Scrapy project", email = "info@scrapy.org" }]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+requires-python = ">=3.9"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/scrapy/queuelib"
+Source = "https://github.com/scrapy/queuelib"
+Issues = "https://github.com/scrapy/queuelib/issues"
+Docs = "https://github.com/scrapy/queuelib/blob/master/README.rst"
+ReleaseNotes = "https://github.com/scrapy/queuelib/blob/master/NEWS"
+Changelog = "https://github.com/scrapy/queuelib/commits/master/"
+
+[tool.hatch.version]
+path = "queuelib/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/queuelib",
+    "/NEWS",
+]
+
 [tool.bumpversion]
 current_version = "1.7.0"
 commit = true
 tag = true
 tag_name = "v{new_version}"
-
-[[tool.bumpversion.files]]
-filename = "setup.py"
 
 [[tool.bumpversion.files]]
 filename = "queuelib/__init__.py"
