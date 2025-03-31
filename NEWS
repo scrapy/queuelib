@@ -3,7 +3,7 @@ Queuelib release notes
 
 Version 1.8.0
 -------------
-(released on XX XXth, 2025)
+(released on March 31st, 2025)
 
 * Added support for Python 3.13 and PyPy 3.11
 * Removed support for Python 3.8
