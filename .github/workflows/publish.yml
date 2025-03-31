@@ -7,20 +7,25 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    environment:
+      name: pypi
+      url: https://pypi.org/p/queuelib
+
+    permissions:
+      id-token: write
+
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python 3.13
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: 3.13
 
     - name: Build
       run: | 
-        pip install --upgrade build twine
+        pip install --upgrade build
         python -m build
 
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.10.3
-      with:
-        password: ${{ secrets.PYPI_TOKEN }}
+      uses: pypa/gh-action-pypi-publish@release/v1
