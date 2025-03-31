@@ -1,6 +1,18 @@
 Queuelib release notes
 ======================
 
+Version 1.8.0
+-------------
+(released on XX XXth, 2025)
+
+* Added support for Python 3.13 and PyPy 3.11
+* Removed support for Python 3.8
+* Queue classes now accept ``os.PathLike`` paths
+* Fixed test failures on Windows
+* Switched the build system to ``hatchling``
+* Improved linting and CI configuration
+
+
 Version 1.7.0
 -------------
 (released on May 4th, 2024)
