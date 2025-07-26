@@ -23,7 +23,7 @@ jobs:
         python-version: 3.13
 
     - name: Build
-      run: | 
+      run: |
         pip install --upgrade build
         python -m build
 
