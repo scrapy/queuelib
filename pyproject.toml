@@ -120,6 +120,8 @@ extend-select = [
     "PIE",
     # pylint
     "PL",
+    # flake8-pytest-style
+    "PT",
     # flake8-use-pathlib
     "PTH",
     # flake8-pyi
