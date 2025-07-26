@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -30,8 +31,7 @@ Homepage = "https://github.com/scrapy/queuelib"
 Source = "https://github.com/scrapy/queuelib"
 Issues = "https://github.com/scrapy/queuelib/issues"
 Docs = "https://github.com/scrapy/queuelib/blob/master/README.rst"
-ReleaseNotes = "https://github.com/scrapy/queuelib/blob/master/NEWS"
-Changelog = "https://github.com/scrapy/queuelib/commits/master/"
+"Release notes" = "https://github.com/scrapy/queuelib/blob/master/NEWS"
 
 [tool.hatch.version]
 path = "queuelib/__init__.py"
@@ -88,10 +88,16 @@ disable = [
 
 [tool.ruff.lint]
 extend-select = [
+    # flake8-builtins
+    "A",
+    # flake8-async
+    "ASYNC",
     # flake8-bugbear
     "B",
     # flake8-comprehensions
     "C4",
+    # flake8-commas
+    "COM",
     # pydocstyle
     "D",
     # flake8-future-annotations
@@ -114,6 +120,8 @@ extend-select = [
     "PIE",
     # pylint
     "PL",
+    # flake8-pytest-style
+    "PT",
     # flake8-use-pathlib
     "PTH",
     # flake8-pyi
@@ -144,6 +152,8 @@ extend-select = [
     "YTT",
 ]
 ignore = [
+    # Trailing comma missing
+    "COM812",
     # Missing docstring in public module
     "D100",
     # Missing docstring in public class
@@ -197,6 +207,9 @@ ignore = [
     # Use of `assert` detected
     "S101",
 ]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"

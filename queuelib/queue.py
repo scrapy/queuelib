@@ -167,12 +167,12 @@ class FifoDiskQueue:
             self._cleanup()
 
     def __len__(self) -> int:
-        return cast(int, self.info["size"])
+        return cast("int", self.info["size"])
 
     def _loadinfo(self, chunksize: int) -> dict[str, Any]:
         infopath = self._infopath()
         if infopath.exists():
-            info = cast(dict[str, Any], json.loads(infopath.read_text()))
+            info = cast("dict[str, Any]", json.loads(infopath.read_text()))
         else:
             info = {
                 "chunksize": chunksize,
@@ -279,13 +279,13 @@ class FifoSQLiteQueue:
         with self._db as conn:
             for id_, item in conn.execute(self._sql_pop):
                 conn.execute(self._sql_del, (id_,))
-                return cast(bytes, item)
+                return cast("bytes", item)
         return None
 
     def peek(self) -> bytes | None:
         with self._db as conn:
             for _, item in conn.execute(self._sql_pop):
-                return cast(bytes, item)
+                return cast("bytes", item)
         return None
 
     def close(self) -> None:
@@ -296,7 +296,7 @@ class FifoSQLiteQueue:
 
     def __len__(self) -> int:
         with self._db as conn:
-            return cast(int, next(conn.execute(self._sql_size))[0])
+            return cast("int", next(conn.execute(self._sql_size))[0])
 
 
 class LifoSQLiteQueue(FifoSQLiteQueue):

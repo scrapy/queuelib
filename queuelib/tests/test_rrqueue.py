@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from queuelib.queue import (
     FifoDiskQueue,
     FifoMemoryQueue,
@@ -22,19 +24,19 @@ class RRQueueTestMixin:
 
     def test_len_nonzero(self):
         assert not self.q
-        self.assertEqual(len(self.q), 0)
+        assert len(self.q) == 0
         self.q.push(b"a", "3")
         assert self.q
         self.q.push(b"b", "1")
         self.q.push(b"c", "2")
         self.q.push(b"d", "1")
-        self.assertEqual(len(self.q), 4)
+        assert len(self.q) == 4
         self.q.pop()
         self.q.pop()
         self.q.pop()
         self.q.pop()
         assert not self.q
-        self.assertEqual(len(self.q), 0)
+        assert len(self.q) == 0
 
     def test_close(self):
         self.q.push(b"a", "3")
@@ -42,7 +44,7 @@ class RRQueueTestMixin:
         self.q.push(b"c", "2")
         self.q.push(b"d", "1")
         iqueues = self.q.queues.values()
-        self.assertEqual(sorted(self.q.close()), ["1", "2", "3"])
+        assert sorted(self.q.close()) == ["1", "2", "3"]
         assert all(q.closed for q in iqueues)
 
     def test_close_return_active(self):
@@ -50,45 +52,45 @@ class RRQueueTestMixin:
         self.q.push(b"c", "2")
         self.q.push(b"a", "3")
         self.q.pop()
-        self.assertEqual(sorted(self.q.close()), ["2", "3"])
+        assert sorted(self.q.close()) == ["2", "3"]
 
 
 class FifoTestMixin:
     def test_push_pop_peek_key(self):
-        self.assertEqual(self.q.peek(), None)
+        assert self.q.peek() is None
         self.q.push(b"a", "1")
         self.q.push(b"b", "1")
         self.q.push(b"c", "2")
         self.q.push(b"d", "2")
-        self.assertEqual(self.q.peek(), b"a")
-        self.assertEqual(self.q.pop(), b"a")
-        self.assertEqual(self.q.peek(), b"c")
-        self.assertEqual(self.q.pop(), b"c")
-        self.assertEqual(self.q.peek(), b"b")
-        self.assertEqual(self.q.pop(), b"b")
-        self.assertEqual(self.q.peek(), b"d")
-        self.assertEqual(self.q.pop(), b"d")
-        self.assertEqual(self.q.peek(), None)
-        self.assertEqual(self.q.pop(), None)
+        assert self.q.peek() == b"a"
+        assert self.q.pop() == b"a"
+        assert self.q.peek() == b"c"
+        assert self.q.pop() == b"c"
+        assert self.q.peek() == b"b"
+        assert self.q.pop() == b"b"
+        assert self.q.peek() == b"d"
+        assert self.q.pop() == b"d"
+        assert self.q.peek() is None
+        assert self.q.pop() is None
 
 
 class LifoTestMixin:
     def test_push_pop_peek_key(self):
-        self.assertEqual(self.q.peek(), None)
+        assert self.q.peek() is None
         self.q.push(b"a", "1")
         self.q.push(b"b", "1")
         self.q.push(b"c", "2")
         self.q.push(b"d", "2")
-        self.assertEqual(self.q.peek(), b"b")
-        self.assertEqual(self.q.pop(), b"b")
-        self.assertEqual(self.q.peek(), b"d")
-        self.assertEqual(self.q.pop(), b"d")
-        self.assertEqual(self.q.peek(), b"a")
-        self.assertEqual(self.q.pop(), b"a")
-        self.assertEqual(self.q.peek(), b"c")
-        self.assertEqual(self.q.pop(), b"c")
-        self.assertEqual(self.q.peek(), None)
-        self.assertEqual(self.q.pop(), None)
+        assert self.q.peek() == b"b"
+        assert self.q.pop() == b"b"
+        assert self.q.peek() == b"d"
+        assert self.q.pop() == b"d"
+        assert self.q.peek() == b"a"
+        assert self.q.pop() == b"a"
+        assert self.q.peek() == b"c"
+        assert self.q.pop() == b"c"
+        assert self.q.peek() is None
+        assert self.q.pop() is None
 
 
 class FifoMemoryRRQueueTest(RRQueueTestMixin, FifoTestMixin, QueuelibTestCase):
@@ -103,27 +105,30 @@ class LifoMemoryRRQueueTest(RRQueueTestMixin, LifoTestMixin, QueuelibTestCase):
 
 class DiskTestMixin:
     def test_nonserializable_object_one(self):
-        self.assertRaises(TypeError, self.q.push, lambda x: x, "0")
-        self.assertEqual(self.q.close(), [])
+        with pytest.raises(TypeError):
+            self.q.push(lambda x: x, "0")
+        assert self.q.close() == []
 
     def test_nonserializable_object_many_close(self):
         self.q.push(b"a", "3")
         self.q.push(b"b", "1")
-        self.assertRaises(TypeError, self.q.push, lambda x: x, "0")
+        with pytest.raises(TypeError):
+            self.q.push(lambda x: x, "0")
         self.q.push(b"c", "2")
-        self.assertEqual(self.q.pop(), b"a")
-        self.assertEqual(sorted(self.q.close()), ["1", "2"])
+        assert self.q.pop() == b"a"
+        assert sorted(self.q.close()) == ["1", "2"]
 
     def test_nonserializable_object_many_pop(self):
         self.q.push(b"a", "3")
         self.q.push(b"b", "1")
-        self.assertRaises(TypeError, self.q.push, lambda x: x, "0")
+        with pytest.raises(TypeError):
+            self.q.push(lambda x: x, "0")
         self.q.push(b"c", "2")
-        self.assertEqual(self.q.pop(), b"a")
-        self.assertEqual(self.q.pop(), b"b")
-        self.assertEqual(self.q.pop(), b"c")
-        self.assertEqual(self.q.pop(), None)
-        self.assertEqual(self.q.close(), [])
+        assert self.q.pop() == b"a"
+        assert self.q.pop() == b"b"
+        assert self.q.pop() == b"c"
+        assert self.q.pop() is None
+        assert self.q.close() == []
 
 
 class FifoDiskRRQueueTest(
@@ -169,22 +174,22 @@ class RRQueueStartDomainsTestMixin:
     def test_push_pop_peek_key(self):
         self.q.push(b"c", "1")
         self.q.push(b"d", "2")
-        self.assertEqual(self.q.peek(), b"d")
-        self.assertEqual(self.q.pop(), b"d")
-        self.assertEqual(self.q.peek(), b"c")
-        self.assertEqual(self.q.pop(), b"c")
-        self.assertEqual(self.q.peek(), None)
-        self.assertEqual(self.q.pop(), None)
+        assert self.q.peek() == b"d"
+        assert self.q.pop() == b"d"
+        assert self.q.peek() == b"c"
+        assert self.q.pop() == b"c"
+        assert self.q.peek() is None
+        assert self.q.pop() is None
 
     def test_push_pop_peek_key_reversed(self):
         self.q.push(b"d", "2")
         self.q.push(b"c", "1")
-        self.assertEqual(self.q.peek(), b"d")
-        self.assertEqual(self.q.pop(), b"d")
-        self.assertEqual(self.q.peek(), b"c")
-        self.assertEqual(self.q.pop(), b"c")
-        self.assertEqual(self.q.peek(), None)
-        self.assertEqual(self.q.pop(), None)
+        assert self.q.peek() == b"d"
+        assert self.q.pop() == b"d"
+        assert self.q.peek() == b"c"
+        assert self.q.pop() == b"c"
+        assert self.q.peek() is None
+        assert self.q.pop() is None
 
 
 class FifoMemoryRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTestCase):

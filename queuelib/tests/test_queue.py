@@ -41,13 +41,13 @@ class DummyQueue:
 class InterfaceTest(QueuelibTestCase):
     def test_queue(self):
         queue = BaseQueue()
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             queue.push(b"")
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             queue.peek()
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             queue.pop()
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             len(queue)
         queue.close()
 
@@ -107,25 +107,25 @@ class QueueTestMixin:
 
     def test_len(self):
         q = self.queue()
-        self.assertEqual(len(q), 0)
+        assert len(q) == 0
         q.push(b"a")
-        self.assertEqual(len(q), 1)
+        assert len(q) == 1
         q.push(b"b")
         q.push(b"c")
-        self.assertEqual(len(q), 3)
+        assert len(q) == 3
         q.pop()
         q.pop()
         q.pop()
-        self.assertEqual(len(q), 0)
+        assert len(q) == 0
         q.close()
 
     def test_peek_one_element(self):
         q = self.queue()
-        self.assertIsNone(q.peek())
+        assert q.peek() is None
         q.push(b"a")
-        self.assertEqual(q.peek(), b"a")
-        self.assertEqual(q.pop(), b"a")
-        self.assertIsNone(q.peek())
+        assert q.peek() == b"a"
+        assert q.pop() == b"a"
+        assert q.peek() is None
         q.close()
 
 
@@ -136,10 +136,10 @@ class FifoTestMixin:
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
-        self.assertEqual(q.pop(), b"a")
-        self.assertEqual(q.pop(), b"b")
-        self.assertEqual(q.pop(), b"c")
-        self.assertEqual(q.pop(), None)
+        assert q.pop() == b"a"
+        assert q.pop() == b"b"
+        assert q.pop() == b"c"
+        assert q.pop() is None
         q.close()
 
     def test_push_pop2(self):
@@ -149,30 +149,30 @@ class FifoTestMixin:
         q.push(b"b")
         q.push(b"c")
         q.push(b"d")
-        self.assertEqual(q.pop(), b"a")
-        self.assertEqual(q.pop(), b"b")
+        assert q.pop() == b"a"
+        assert q.pop() == b"b"
         q.push(b"e")
-        self.assertEqual(q.pop(), b"c")
-        self.assertEqual(q.pop(), b"d")
-        self.assertEqual(q.pop(), b"e")
+        assert q.pop() == b"c"
+        assert q.pop() == b"d"
+        assert q.pop() == b"e"
         q.close()
 
     def test_peek_fifo(self):
         q = self.queue()
-        self.assertIsNone(q.peek())
+        assert q.peek() is None
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
-        self.assertEqual(q.peek(), b"a")
-        self.assertEqual(q.peek(), b"a")
-        self.assertEqual(q.pop(), b"a")
-        self.assertEqual(q.peek(), b"b")
-        self.assertEqual(q.peek(), b"b")
-        self.assertEqual(q.pop(), b"b")
-        self.assertEqual(q.peek(), b"c")
-        self.assertEqual(q.peek(), b"c")
-        self.assertEqual(q.pop(), b"c")
-        self.assertIsNone(q.peek())
+        assert q.peek() == b"a"
+        assert q.peek() == b"a"
+        assert q.pop() == b"a"
+        assert q.peek() == b"b"
+        assert q.peek() == b"b"
+        assert q.pop() == b"b"
+        assert q.peek() == b"c"
+        assert q.peek() == b"c"
+        assert q.pop() == b"c"
+        assert q.peek() is None
         q.close()
 
 
@@ -183,10 +183,10 @@ class LifoTestMixin:
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
-        self.assertEqual(q.pop(), b"c")
-        self.assertEqual(q.pop(), b"b")
-        self.assertEqual(q.pop(), b"a")
-        self.assertEqual(q.pop(), None)
+        assert q.pop() == b"c"
+        assert q.pop() == b"b"
+        assert q.pop() == b"a"
+        assert q.pop() is None
         q.close()
 
     def test_push_pop2(self):
@@ -196,30 +196,30 @@ class LifoTestMixin:
         q.push(b"b")
         q.push(b"c")
         q.push(b"d")
-        self.assertEqual(q.pop(), b"d")
-        self.assertEqual(q.pop(), b"c")
+        assert q.pop() == b"d"
+        assert q.pop() == b"c"
         q.push(b"e")
-        self.assertEqual(q.pop(), b"e")
-        self.assertEqual(q.pop(), b"b")
-        self.assertEqual(q.pop(), b"a")
+        assert q.pop() == b"e"
+        assert q.pop() == b"b"
+        assert q.pop() == b"a"
         q.close()
 
     def test_peek_lifo(self):
         q = self.queue()
-        self.assertIsNone(q.peek())
+        assert q.peek() is None
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
-        self.assertEqual(q.peek(), b"c")
-        self.assertEqual(q.peek(), b"c")
-        self.assertEqual(q.pop(), b"c")
-        self.assertEqual(q.peek(), b"b")
-        self.assertEqual(q.peek(), b"b")
-        self.assertEqual(q.pop(), b"b")
-        self.assertEqual(q.peek(), b"a")
-        self.assertEqual(q.peek(), b"a")
-        self.assertEqual(q.pop(), b"a")
-        self.assertIsNone(q.peek())
+        assert q.peek() == b"c"
+        assert q.peek() == b"c"
+        assert q.pop() == b"c"
+        assert q.peek() == b"b"
+        assert q.peek() == b"b"
+        assert q.pop() == b"b"
+        assert q.peek() == b"a"
+        assert q.peek() == b"a"
+        assert q.pop() == b"a"
+        assert q.peek() is None
         q.close()
 
 
@@ -231,10 +231,14 @@ class PersistentTestMixin:
     )
     def test_non_bytes_raises_typeerror(self):
         q = self.queue()
-        self.assertRaises(TypeError, q.push, 0)
-        self.assertRaises(TypeError, q.push, "")
-        self.assertRaises(TypeError, q.push, None)
-        self.assertRaises(TypeError, q.push, lambda x: x)
+        with pytest.raises(TypeError):
+            q.push(0)
+        with pytest.raises(TypeError):
+            q.push("")
+        with pytest.raises(TypeError):
+            q.push(None)
+        with pytest.raises(TypeError):
+            q.push(lambda x: x)
         q.close()
 
     def test_text_in_windows(self):
@@ -244,7 +248,7 @@ class PersistentTestMixin:
         q.close()
         q = self.queue()
         e2 = q.pop()
-        self.assertEqual(e1, e2)
+        assert e1 == e2
         q.close()
 
     def test_close_open(self):
@@ -260,7 +264,7 @@ class PersistentTestMixin:
         del q
 
         q = self.queue()
-        self.assertEqual(len(q), 2)
+        assert len(q) == 2
         q.push(b"e")
         q.pop()
         q.pop()
@@ -269,7 +273,7 @@ class PersistentTestMixin:
 
         q = self.queue()
         assert q.pop() is not None
-        self.assertEqual(len(q), 0)
+        assert len(q) == 0
         q.close()
 
     def test_cleanup(self):
@@ -321,12 +325,12 @@ class FifoDiskQueueTest(
             q.push(x)
 
         chunks = list(self.qpath.glob("q*"))
-        self.assertEqual(len(chunks), 5 // self.chunksize + 1)
+        assert len(chunks) == 5 // self.chunksize + 1
         for _ in values:
             q.pop()
 
         chunks = list(self.qpath.glob("q*"))
-        self.assertEqual(len(chunks), 1)
+        assert len(chunks) == 1
         q.close()
 
 
