@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -30,8 +31,7 @@ Homepage = "https://github.com/scrapy/queuelib"
 Source = "https://github.com/scrapy/queuelib"
 Issues = "https://github.com/scrapy/queuelib/issues"
 Docs = "https://github.com/scrapy/queuelib/blob/master/README.rst"
-ReleaseNotes = "https://github.com/scrapy/queuelib/blob/master/NEWS"
-Changelog = "https://github.com/scrapy/queuelib/commits/master/"
+"Release notes" = "https://github.com/scrapy/queuelib/blob/master/NEWS"
 
 [tool.hatch.version]
 path = "queuelib/__init__.py"
