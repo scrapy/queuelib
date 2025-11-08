@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Hashable, Iterable
+    from collections.abc import Callable, Hashable, Iterable
 
     from queuelib.queue import BaseQueue
 
