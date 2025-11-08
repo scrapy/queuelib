@@ -56,10 +56,8 @@ omit = [
     "queuelib/tests/*",
 ]
 
-[tool.coverage.report]
-exclude_also = [
-    "if TYPE_CHECKING:",
-]
+[tool.mypy]
+strict = true
 
 [[tool.mypy.overrides]]
 module = "queuelib.tests.*"
