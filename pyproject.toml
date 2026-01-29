@@ -53,7 +53,7 @@ filename = "queuelib/__init__.py"
 [[tool.bumpversion.files]]
 filename = "NEWS"
 search = "^\\(unreleased\\)$"
-replace = "(released on {now:%B %-d, %Y})"
+replace = "(released on {now:%Y-%m-%d})"
 regex = true
 
 [tool.coverage.run]

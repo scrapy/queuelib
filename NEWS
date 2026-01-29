@@ -11,7 +11,7 @@ Version 1.9.0
 
 Version 1.8.0
 -------------
-(released on March 31st, 2025)
+(released on 2025-03-31)
 
 * Added support for Python 3.13 and PyPy 3.11
 * Removed support for Python 3.8
@@ -23,7 +23,7 @@ Version 1.8.0
 
 Version 1.7.0
 -------------
-(released on May 4th, 2024)
+(released on 2024-05-04)
 
 No functionality changes with respect to 1.6.2
 
@@ -36,7 +36,7 @@ No functionality changes with respect to 1.6.2
 
 Version 1.6.2
 -------------
-(released on August 26th, 2021)
+(released on 2021-08-26)
 
 No functionality changes with respect to 1.6.1
 
@@ -48,7 +48,7 @@ No functionality changes with respect to 1.6.1
 
 Version 1.6.1
 -------------
-(released on April 21st, 2021)
+(released on 2021-04-21)
 
 No code changes with respect to 1.6
 
@@ -58,7 +58,7 @@ No code changes with respect to 1.6
 
 Version 1.6
 -----------
-(released on April 21st, 2021)
+(released on 2021-04-21)
 
 * Add peek support
 * Remove py2 support
@@ -67,6 +67,6 @@ Version 1.6
 
 Version 1.0
 -----------
-(released on April 23rd, 2013)
+(released on 2013-04-23)
 
 First release of Queuelib.
