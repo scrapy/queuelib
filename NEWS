@@ -3,7 +3,7 @@ Queuelib release notes
 
 Version 1.9.0
 -------------
-(unreleased)
+(released on 2026-01-29)
 
 * Added support for Python 3.14
 * Removed support for Python 3.9 and PyPy 3.10
