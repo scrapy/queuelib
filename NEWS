@@ -1,6 +1,14 @@
 Queuelib release notes
 ======================
 
+Version 1.9.0
+-------------
+(unreleased)
+
+* Added support for Python 3.14
+* Removed support for Python 3.9 and PyPy 3.10
+* Improved linting and CI configuration
+
 Version 1.8.0
 -------------
 (released on March 31st, 2025)
