@@ -54,7 +54,7 @@ class RoundRobinQueue:
         return self.queues[key].peek()
 
     def pop(self) -> Any | None:
-        # pop until we find a valid object, closing necessary queues
+        # pop until we find an item, closing necessary queues
         while True:
             try:
                 key = self.key_queue.pop()
@@ -62,6 +62,11 @@ class RoundRobinQueue:
                 return None
 
             q = self.queues[key]
+            if len(q) == 0:
+                del self.queues[key]
+                q.close()
+                continue
+
             m = q.pop()
 
             if len(q) == 0:
@@ -70,8 +75,7 @@ class RoundRobinQueue:
             else:
                 self.key_queue.appendleft(key)
 
-            if m:
-                return m
+            return m
 
     def close(self) -> list[Hashable]:
         active = []

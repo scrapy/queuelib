@@ -73,6 +73,13 @@ class FifoTestMixin:
         assert self.q.peek() is None
         assert self.q.pop() is None
 
+    def test_push_pop_falsy_bytes(self):
+        self.q.push(b"", "1")
+        self.q.push(b"x", "1")
+        assert self.q.pop() == b""
+        assert self.q.pop() == b"x"
+        assert self.q.pop() is None
+
 
 class LifoTestMixin:
     def test_push_pop_peek_key(self):
@@ -96,6 +103,17 @@ class LifoTestMixin:
 class FifoMemoryRRQueueTest(RRQueueTestMixin, FifoTestMixin, QueuelibTestCase):
     def qfactory(self, key):
         return track_closed(FifoMemoryQueue)()
+
+    def test_push_pop_falsy_objects(self):
+        self.q.push(0, "1")
+        self.q.push(False, "1")
+        self.q.push("", "2")
+        self.q.push(None, "2")
+        assert self.q.pop() == 0
+        assert self.q.pop() == ""
+        assert self.q.pop() is False
+        assert self.q.pop() is None
+        assert self.q.pop() is None
 
 
 class LifoMemoryRRQueueTest(RRQueueTestMixin, LifoTestMixin, QueuelibTestCase):
