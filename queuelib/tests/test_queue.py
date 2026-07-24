@@ -226,20 +226,24 @@ class LifoTestMixin:
 class PersistentTestMixin:
     chunksize = 100000
 
+    # Scrapy SerializableQueue doesn't raise TypeError for non-bytes objects,
+    # so this test fails when run for it.
     @pytest.mark.xfail(
         reason="Reenable once Scrapy.squeues stops extending from this testsuite"
     )
     def test_non_bytes_raises_typeerror(self):
         q = self.queue()
-        with pytest.raises(TypeError):
-            q.push(0)
-        with pytest.raises(TypeError):
-            q.push("")
-        with pytest.raises(TypeError):
-            q.push(None)
-        with pytest.raises(TypeError):
-            q.push(lambda x: x)
-        q.close()
+        try:
+            with pytest.raises(TypeError):
+                q.push(0)
+            with pytest.raises(TypeError):
+                q.push("")
+            with pytest.raises(TypeError):
+                q.push(None)
+            with pytest.raises(TypeError):
+                q.push(lambda x: x)
+        finally:
+            q.close()
 
     def test_text_in_windows(self):
         e1 = b"\r\n"
