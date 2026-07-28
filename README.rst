@@ -133,11 +133,105 @@ And use it::
     >>> rr.pop()
     b'd'
 
+Disk persistence
+================
 
-Mailing list
-============
+``FifoDiskQueue`` and ``LifoDiskQueue`` write their items to the path they get
+on instantiation, so that a queue can be resumed later, even by a different
+process.
 
-Use the `scrapy-users`_ mailing list for questions about Queuelib.
+Each class uses that path differently:
+
+-   ``FifoDiskQueue`` uses a directory, which it creates, together with any
+    missing parent directory. Items go into chunk files (``q00000``,
+    ``q00001``, etc.), each holding up to ``chunksize`` items, and the queue
+    also keeps an ``info.json`` file there for its own bookkeeping.
+
+-   ``LifoDiskQueue`` uses a single file, whose parent directory must already
+    exist.
+
+The layout and the contents of those files are an implementation detail that
+may change in any release. Do not read or write them yourself, and do not
+expect a queue written by one version of Queuelib to be readable by a
+different one.
+
+Always close disk queues
+------------------------
+
+While a disk queue is open, its bookkeeping (number of items, read and write
+positions) only lives in memory, and ``close()`` is what writes it to disk.
+Queuelib never calls ``fsync()`` either, and ``LifoDiskQueue`` writes items
+through a buffered file object, so the most recent items may not have reached
+the disk at all.
+
+Calling ``close()`` is hence mandatory::
+
+    from contextlib import closing
+
+    with closing(FifoDiskQueue("queuedir")) as q:
+        q.push(b'a')
+
+If a process ends without calling ``close()``, the queue on disk keeps the
+bookkeeping that the last ``close()`` call wrote, which no longer matches the
+files. Items pushed since then become unreachable, and using the queue again
+is unsafe: it may report a wrong length, return items that had already been
+popped, delete files that still contain items, or raise ``OSError``. Queuelib
+offers no way to repair or to recover such a queue.
+
+Empty queues delete their files
+-------------------------------
+
+``close()`` on an empty queue deletes its file, or, in the case of
+``FifoDiskQueue``, its chunk files and its ``info.json`` file, and also its
+directory if nothing else remains in it. Using that same path again creates a
+new, empty queue.
+
+Reopening a FifoDiskQueue keeps its chunk size
+----------------------------------------------
+
+``FifoDiskQueue`` stores its ``chunksize`` when creating a queue, and reuses
+the stored value when reopening one, ignoring the ``chunksize`` parameter.
+
+Use one queue object per path at a time
+---------------------------------------
+
+Queuelib does not lock the files that it uses. On top of not being
+thread-safe, a given path must not be used by more than one open queue object
+at a time, in the same process or not. Such queue objects overwrite each
+other's items and bookkeeping; for example, two ``FifoDiskQueue`` objects on
+the same directory return the same items, and their ``close()`` calls may
+raise ``FileNotFoundError``.
+
+Persisting a PriorityQueue or a RoundRobinQueue
+-----------------------------------------------
+
+``PriorityQueue`` and ``RoundRobinQueue`` do not write anything to disk
+themselves; their persistence comes entirely from the queues that ``qfactory``
+builds, and it is up to ``qfactory`` to map a priority or a key to a valid
+path.
+
+Their ``close()`` method returns the priorities or keys whose underlying queue
+was not empty. Storing that value is your responsibility, and so is passing it
+back as ``startprios`` or ``start_domains`` on the next run::
+
+    >>> import json
+    >>> from queuelib import FifoDiskQueue, PriorityQueue
+    >>> qfactory = lambda priority: FifoDiskQueue('queue-dir-%s' % priority)
+    >>> pq = PriorityQueue(qfactory)
+    >>> pq.push(b'a', 3)
+    >>> active = pq.close()
+    >>> with open('active.json', 'w') as f:
+    ...     json.dump(active, f)
+    ...
+    >>> with open('active.json') as f:
+    ...     startprios = json.load(f)
+    ...
+    >>> pq = PriorityQueue(qfactory, startprios)
+    >>> pq.pop()
+    b'a'
+
+Priorities and keys that you do not pass back are not detected, and the items
+in their queues stay on disk, unreachable.
 
 Bug tracker
 ===========
