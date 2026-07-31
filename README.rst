@@ -186,6 +186,18 @@ Empty queues delete their files
 directory if nothing else remains in it. Using that same path again creates a
 new, empty queue.
 
+FifoDiskQueue frees disk space one chunk at a time
+--------------------------------------------------
+
+``FifoDiskQueue`` deletes a chunk file once every item in it has been popped.
+Until then, popped items keep using disk space, so a queue uses up to
+``chunksize`` items worth of disk space on top of the items that it holds.
+
+Lower ``chunksize`` to lower that overhead, at the cost of more chunk files and
+more file operations. For example, a queue that holds 400 items of 1 MB each
+uses about 100 GB of disk space with the default ``chunksize`` of 100000, and
+about 800 MB with a ``chunksize`` of 400.
+
 Reopening a FifoDiskQueue keeps its chunk size
 ----------------------------------------------
 
