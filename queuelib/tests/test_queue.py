@@ -6,8 +6,7 @@ from unittest import mock
 
 import pytest
 
-from queuelib.queue import (
-    BaseQueue,
+from queuelib import (
     FifoDiskQueue,
     FifoMemoryQueue,
     FifoSQLiteQueue,
@@ -15,6 +14,7 @@ from queuelib.queue import (
     LifoMemoryQueue,
     LifoSQLiteQueue,
 )
+from queuelib.queue import BaseQueue
 from queuelib.tests import QueuelibTestCase
 
 
