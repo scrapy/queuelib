@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from queuelib.queue import _clear
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
@@ -17,6 +19,9 @@ class PriorityQueue:
         * peek()
         * close()
         * __len__()
+
+    Internal queues may also implement clear(); those that do not are emptied
+    by popping.
 
     The constructor receives a qfactory argument, which is a callable used to
     instantiate a new (internal) queue when a new priority is allocated. The
@@ -65,6 +70,13 @@ class PriorityQueue:
         if self.curprio is None:
             return None
         return self.queues[self.curprio].peek()
+
+    def clear(self) -> None:
+        for q in self.queues.values():
+            _clear(q)
+            q.close()
+        self.queues.clear()
+        self.curprio = None
 
     def close(self) -> list[int]:
         active = []
