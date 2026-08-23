@@ -11,6 +11,17 @@ from pathlib import Path
 from typing import Any, BinaryIO, Literal, cast
 
 
+def _clear(queue: Any) -> None:
+    """Remove every item from *queue*, popping them one by one if it does not
+    implement ``clear()``."""
+    clear = getattr(queue, "clear", None)
+    if clear is not None:
+        clear()
+        return
+    while queue.pop() is not None:
+        pass
+
+
 class _BaseQueueMeta(type):
     """
     Metaclass to check queue classes against the necessary interface
@@ -71,6 +82,9 @@ class FifoMemoryQueue:
 
     def peek(self) -> Any | None:
         return self.q[0] if self.q else None
+
+    def clear(self) -> None:
+        self.q.clear()
 
     def close(self) -> None:
         pass
@@ -159,6 +173,17 @@ class FifoDiskQueue:
         os.lseek(tfd, tfd_initial_pos, os.SEEK_SET)
         return data
 
+    def clear(self) -> None:
+        self.headf.close()
+        self.tailf.close()
+        for chunk in Path(self.path).glob("q*"):
+            chunk.unlink()
+        self.info["size"] = 0
+        self.info["tail"] = [0, 0, 0]
+        self.info["head"] = [0, 0]
+        self.headf = self._openchunk(0, "ab+")
+        self.tailf = self._openchunk(0)
+
     def close(self) -> None:
         self.headf.close()
         self.tailf.close()
@@ -243,6 +268,12 @@ class LifoDiskQueue:
         self.f.seek(-size - self.SIZE_SIZE, os.SEEK_END)
         return self.f.read(size)
 
+    def clear(self) -> None:
+        self.f.seek(0)
+        self.f.write(struct.pack(self.SIZE_FORMAT, 0))
+        self.f.truncate()
+        self.size = 0
+
     def close(self) -> None:
         if self.size:
             self.f.seek(0)
@@ -261,6 +292,7 @@ class FifoSQLiteQueue:
     _sql_push = "INSERT INTO queue (item) VALUES (?)"
     _sql_pop = "SELECT id, item FROM queue ORDER BY id LIMIT 1"
     _sql_del = "DELETE FROM queue WHERE id = ?"
+    _sql_clear = "DELETE FROM queue"
 
     def __init__(self, path: str | os.PathLike[str]) -> None:
         self._path = Path(path).resolve()
@@ -287,6 +319,10 @@ class FifoSQLiteQueue:
             for _, item in conn.execute(self._sql_pop):
                 return cast("bytes", item)
         return None
+
+    def clear(self) -> None:
+        with self._db as conn:
+            conn.execute(self._sql_clear)
 
     def close(self) -> None:
         size = len(self)

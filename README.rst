@@ -133,6 +133,19 @@ And use it::
     >>> rr.pop()
     b'd'
 
+Clearing a queue
+================
+
+``clear()`` removes every item from a queue, freeing the disk space that they
+used, and leaves the queue open and usable::
+
+    >>> q.clear()
+    >>> len(q)
+    0
+
+``PriorityQueue`` and ``RoundRobinQueue`` also close their internal queues, the
+same way that ``pop()`` does when one of them becomes empty.
+
 Disk persistence
 ================
 

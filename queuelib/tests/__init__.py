@@ -1,7 +1,32 @@
+from __future__ import annotations
+
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
+
+
+class DummyQueue:
+    """Minimal queue implementation, without the optional clear() method."""
+
+    def __init__(self) -> None:
+        self.q: list[Any] = []
+
+    def push(self, obj: Any) -> None:
+        self.q.append(obj)
+
+    def pop(self) -> Any | None:
+        return self.q.pop() if self.q else None
+
+    def peek(self) -> Any | None:
+        return self.q[-1] if self.q else None
+
+    def close(self) -> None:
+        pass
+
+    def __len__(self) -> int:
+        return len(self.q)
 
 
 class QueuelibTestCase(unittest.TestCase):
