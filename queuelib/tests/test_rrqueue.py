@@ -11,7 +11,7 @@ from queuelib.queue import (
     LifoSQLiteQueue,
 )
 from queuelib.rrqueue import RoundRobinQueue
-from queuelib.tests import QueuelibTestCase, track_closed
+from queuelib.tests import DummyQueue, QueuelibTestCase, track_closed
 
 
 class RRQueueTestMixin:
@@ -47,12 +47,40 @@ class RRQueueTestMixin:
         assert sorted(self.q.close()) == ["1", "2", "3"]
         assert all(q.closed for q in iqueues)
 
+    def test_clear(self):
+        self.q.clear()
+        assert len(self.q) == 0
+        self.q.push(b"a", "3")
+        self.q.push(b"b", "1")
+        iqueues = list(self.q.queues.values())
+        self.q.clear()
+        assert len(self.q) == 0
+        assert self.q.peek() is None
+        assert self.q.pop() is None
+        assert all(q.closed for q in iqueues)
+        self.q.push(b"c", "2")
+        assert self.q.pop() == b"c"
+        assert not self.q.close()
+
     def test_close_return_active(self):
         self.q.push(b"b", "1")
         self.q.push(b"c", "2")
         self.q.push(b"a", "3")
         self.q.pop()
         assert sorted(self.q.close()) == ["2", "3"]
+
+    def test_pop_returns_falsy_items(self):
+        self.q.push(b"", "a")
+        assert len(self.q) == 1
+        assert self.q.pop() == b""
+        assert len(self.q) == 0
+        assert self.q.pop() is None
+
+    def test_falsy_items_keep_round_robin_order(self):
+        self.q.push(b"one", "a")
+        self.q.push(b"", "b")
+        self.q.push(b"two", "c")
+        assert [self.q.pop(), self.q.pop(), self.q.pop()] == [b"one", b"", b"two"]
 
 
 class FifoTestMixin:
@@ -224,3 +252,14 @@ class LifoSQLiteRRQueueStartDomainsTest(RRQueueStartDomainsTestMixin, QueuelibTe
     def qfactory(self, key):
         path = Path(self.qdir, str(key))
         return track_closed(LifoSQLiteQueue)(path)
+
+
+class DummyRRQueueTest(QueuelibTestCase):
+    def test_clear(self):
+        q = RoundRobinQueue(lambda key: DummyQueue())
+        q.push(b"a", "1")
+        q.push(b"b", "2")
+        q.clear()
+        assert len(q) == 0
+        assert q.pop() is None
+        assert not q.close()

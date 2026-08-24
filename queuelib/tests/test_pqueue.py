@@ -11,7 +11,7 @@ from queuelib.queue import (
     LifoMemoryQueue,
     LifoSQLiteQueue,
 )
-from queuelib.tests import QueuelibTestCase, track_closed
+from queuelib.tests import DummyQueue, QueuelibTestCase, track_closed
 
 
 class PQueueTestMixin:
@@ -53,6 +53,21 @@ class PQueueTestMixin:
         self.q.push(b"a", 3)
         self.q.pop()
         assert sorted(self.q.close()) == [2, 3]
+
+    def test_clear(self):
+        self.q.clear()
+        assert len(self.q) == 0
+        self.q.push(b"a", 3)
+        self.q.push(b"b", 1)
+        iqueues = list(self.q.queues.values())
+        self.q.clear()
+        assert len(self.q) == 0
+        assert self.q.peek() is None
+        assert self.q.pop() is None
+        assert all(q.closed for q in iqueues)
+        self.q.push(b"c", 2)
+        assert self.q.pop() == b"c"
+        assert not self.q.close()
 
     def test_popped_internal_queues_closed(self):
         self.q.push(b"a", 3)
@@ -210,3 +225,14 @@ class LifoSQLitePriorityQueueTest(
     def qfactory(self, prio):
         path = Path(self.qdir, str(prio))
         return track_closed(LifoSQLiteQueue)(path)
+
+
+class DummyPriorityQueueTest(QueuelibTestCase):
+    def test_clear(self):
+        q = PriorityQueue(lambda prio: DummyQueue())
+        q.push(b"a", 1)
+        q.push(b"b", 2)
+        q.clear()
+        assert len(q) == 0
+        assert q.pop() is None
+        assert not q.close()

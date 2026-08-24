@@ -1,6 +1,15 @@
 Queuelib release notes
 ======================
 
+Version 1.10.0
+---------------
+(released on 2026-08-24)
+
+* Added ``clear()``, to remove every item from a queue while keeping it open
+* Fixed ``RoundRobinQueue.pop()`` dropping falsy items
+* Added support for Python 3.15
+* Improved linting and CI configuration
+
 Version 1.9.0
 -------------
 (released on 2026-01-29)

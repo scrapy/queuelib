@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import deque
 from typing import TYPE_CHECKING, Any
 
+from queuelib.queue import _clear
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable
 
@@ -17,6 +19,10 @@ class RoundRobinQueue:
         * peek()
         * close()
         * __len__()
+
+    Internal queues may also implement clear(); those that do not are emptied
+    by popping.
+
     The constructor receives a qfactory argument, which is a callable used to
     instantiate a new (internal) queue when a new key is allocated. The
     qfactory function is called with the key number as first and only argument.
@@ -53,6 +59,13 @@ class RoundRobinQueue:
             return None
         return self.queues[key].peek()
 
+    def clear(self) -> None:
+        for q in self.queues.values():
+            _clear(q)
+            q.close()
+        self.queues.clear()
+        self.key_queue.clear()
+
     def pop(self) -> Any | None:
         # pop until we find a valid object, closing necessary queues
         while True:
@@ -70,7 +83,7 @@ class RoundRobinQueue:
             else:
                 self.key_queue.appendleft(key)
 
-            if m:
+            if m is not None:
                 return m
 
     def close(self) -> list[Hashable]:
