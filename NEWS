@@ -3,7 +3,7 @@ Queuelib release notes
 
 Version 1.10.0
 ---------------
-(unreleased)
+(released on 2026-08-24)
 
 * Added ``clear()``, to remove every item from a queue while keeping it open
 * Fixed ``RoundRobinQueue.pop()`` dropping falsy items

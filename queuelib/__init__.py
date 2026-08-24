@@ -1,4 +1,4 @@
-__version__ = "1.9.0"
+__version__ = "1.10.0"
 
 from queuelib.pqueue import PriorityQueue
 from queuelib.queue import FifoDiskQueue, LifoDiskQueue
