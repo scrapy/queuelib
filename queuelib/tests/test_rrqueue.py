@@ -69,6 +69,19 @@ class RRQueueTestMixin:
         self.q.pop()
         assert sorted(self.q.close()) == ["2", "3"]
 
+    def test_pop_returns_falsy_items(self):
+        self.q.push(b"", "a")
+        assert len(self.q) == 1
+        assert self.q.pop() == b""
+        assert len(self.q) == 0
+        assert self.q.pop() is None
+
+    def test_falsy_items_keep_round_robin_order(self):
+        self.q.push(b"one", "a")
+        self.q.push(b"", "b")
+        self.q.push(b"two", "c")
+        assert [self.q.pop(), self.q.pop(), self.q.pop()] == [b"one", b"", b"two"]
+
 
 class FifoTestMixin:
     def test_push_pop_peek_key(self):

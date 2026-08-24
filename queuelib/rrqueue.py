@@ -83,7 +83,7 @@ class RoundRobinQueue:
             else:
                 self.key_queue.appendleft(key)
 
-            if m:
+            if m is not None:
                 return m
 
     def close(self) -> list[Hashable]:
