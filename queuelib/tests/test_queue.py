@@ -287,6 +287,25 @@ class PersistentTestMixin:
         assert not self.qpath.exists()
 
 
+class DirectoryTestMixin:
+    def test_cleanup_unclean(self):
+        """Test queue dir is not removed if it contains unexpected content"""
+        q = self.queue()
+        values = [b"0", b"1", b"2", b"3", b"4"]
+        assert self.qpath.exists()
+        for x in values:
+            q.push(x)
+
+        unexpected_file = self.qpath / "unexpected"
+        unexpected_file.touch()
+
+        for _ in values:
+            q.pop()
+        q.close()
+        assert self.qpath.exists()
+        assert unexpected_file.exists()
+
+
 class FifoMemoryQueueTest(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return FifoMemoryQueue()
@@ -298,7 +317,11 @@ class LifoMemoryQueueTest(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
 
 
 class FifoDiskQueueTest(
-    FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
+    FifoTestMixin,
+    DirectoryTestMixin,
+    PersistentTestMixin,
+    QueueTestMixin,
+    QueuelibTestCase,
 ):
     def queue(self):
         return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
