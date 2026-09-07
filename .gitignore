@@ -1,10 +1,9 @@
 htmlcov/
 coverage.xml
-.coverage
-.tox
+/.coverage
+/.tox/
 *egg-info
 *.pyc
-/.tox/
 build/
 dist/
 .idea/
