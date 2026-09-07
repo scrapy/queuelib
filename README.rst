@@ -49,10 +49,25 @@ following (as root)::
 
     # python setup.py install
 
+FIFO/LIFO memory queues
+=======================
+
+``FifoMemoryQueue`` and ``LifoMemoryQueue`` hold their items in memory, take no
+path, and accept objects of any type::
+
+    >>> from queuelib import FifoMemoryQueue
+    >>> q = FifoMemoryQueue()
+    >>> q.push({'a': 1})
+    >>> q.pop()
+    {'a': 1}
+
 FIFO/LIFO disk queues
 =====================
 
-Queuelib provides FIFO and LIFO queue implementations.
+Queuelib provides four disk queue classes, all of which store bytes:
+``FifoDiskQueue`` and ``LifoDiskQueue``, which use a file format of their own,
+and ``FifoSQLiteQueue`` and ``LifoSQLiteQueue``, which use SQLite. See
+`Choosing a disk queue class`_ for the trade-off.
 
 Here is an example usage of the FIFO queue::
 
@@ -72,8 +87,8 @@ Here is an example usage of the FIFO queue::
     >>> q.pop()
     >>>
 
-The LIFO queue is identical (API-wise), but importing ``LifoDiskQueue``
-instead.
+The other disk queue classes have the same API, and the LIFO ones pop the item
+that was pushed last.
 
 PriorityQueue
 =============
@@ -149,9 +164,8 @@ same way that ``pop()`` does when one of them becomes empty.
 Disk persistence
 ================
 
-``FifoDiskQueue`` and ``LifoDiskQueue`` write their items to the path they get
-on instantiation, so that a queue can be resumed later, even by a different
-process.
+Disk queues write their items to the path they get on instantiation, so that a
+queue can be resumed later, even by a different process.
 
 Each class uses that path differently:
 
@@ -160,22 +174,44 @@ Each class uses that path differently:
     ``q00001``, etc.), each holding up to ``chunksize`` items, and the queue
     also keeps an ``info.json`` file there for its own bookkeeping.
 
--   ``LifoDiskQueue`` uses a single file, whose parent directory must already
-    exist.
+-   ``LifoDiskQueue``, ``FifoSQLiteQueue`` and ``LifoSQLiteQueue`` use a single
+    file, whose parent directory must already exist.
 
-The layout and the contents of those files are an implementation detail that
-may change in any release. Do not read or write them yourself, and do not
-expect a queue written by one version of Queuelib to be readable by a
-different one.
+The layout and the contents of those files, including the database schema of
+the SQLite queues, are an implementation detail that may change in any release.
+Do not read or write them yourself, and do not expect a queue written by one
+version of Queuelib to be readable by a different one.
+
+Choosing a disk queue class
+---------------------------
+
+``FifoDiskQueue`` and ``LifoDiskQueue`` are fast and lose data. They keep their
+bookkeeping in memory until ``close()``, so a crash costs every item pushed
+since the last ``close()`` call, and a failed write leaves the queue corrupt.
+
+``FifoSQLiteQueue`` and ``LifoSQLiteQueue`` commit every ``push()`` and
+``pop()`` call, so a crash or a failed write costs nothing. Each commit waits
+for a disk flush, which on common storage takes about a millisecond and limits
+these queues to a few hundred operations per second, against hundreds of
+thousands for the file queues.
+
+Measure that cost next to the work that your code does per item before letting
+it decide: a millisecond is most of the budget when items are cheap to produce,
+and noise when each one comes from the network. The subsections below cover
+each failure mode in detail.
 
 Always close disk queues
 ------------------------
 
-While a disk queue is open, its bookkeeping (number of items, read and write
-positions) only lives in memory, and ``close()`` is what writes it to disk.
-Queuelib never calls ``fsync()`` either, and ``LifoDiskQueue`` writes items
-through a buffered file object, so the most recent items may not have reached
-the disk at all.
+``FifoDiskQueue`` and ``LifoDiskQueue`` do not survive a crash. Every item
+pushed since the last ``close()`` call is lost if the process is killed or the
+machine loses power.
+
+While one of those queues is open, its bookkeeping (number of items, read and
+write positions) only lives in memory, and ``close()`` is what writes it to
+disk. Queuelib never calls ``fsync()`` either, and ``LifoDiskQueue`` writes
+items through a buffered file object, so the most recent items may not have
+reached the disk at all.
 
 Calling ``close()`` is hence mandatory::
 
@@ -188,8 +224,24 @@ If a process ends without calling ``close()``, the queue on disk keeps the
 bookkeeping that the last ``close()`` call wrote, which no longer matches the
 files. Items pushed since then become unreachable, and using the queue again
 is unsafe: it may report a wrong length, return items that had already been
-popped, delete files that still contain items, or raise ``OSError``. Queuelib
+popped, delete files that still contain items, or raise an exception. Queuelib
 offers no way to repair or to recover such a queue.
+
+A SQLite queue that is not closed keeps every item that was pushed. It still
+needs ``close()`` to delete the file of an empty queue.
+
+A failed push corrupts a file queue
+-----------------------------------
+
+``push()`` on ``FifoDiskQueue`` or ``LifoDiskQueue`` may fail part way through
+writing an item, for example with ``OSError`` when the disk is full. Queuelib
+does not undo the part that was written, so from that point on the queue is
+corrupt: ``pop()`` may return truncated or wrong data, or raise an exception,
+and reopening the queue later does not help. Stop using a queue whose
+``push()`` call raised.
+
+On a SQLite queue the failed ``push()`` call is rolled back and the queue stays
+usable.
 
 Empty queues delete their files
 -------------------------------
@@ -220,12 +272,17 @@ the stored value when reopening one, ignoring the ``chunksize`` parameter.
 Use one queue object per path at a time
 ---------------------------------------
 
-Queuelib does not lock the files that it uses. On top of not being
-thread-safe, a given path must not be used by more than one open queue object
-at a time, in the same process or not. Such queue objects overwrite each
-other's items and bookkeeping; for example, two ``FifoDiskQueue`` objects on
-the same directory return the same items, and their ``close()`` calls may
-raise ``FileNotFoundError``.
+On top of not being thread-safe, a given path must not be used by more than one
+open queue object at a time, in the same process or not.
+
+``FifoDiskQueue`` and ``LifoDiskQueue`` do not lock the files that they use, so
+such queue objects overwrite each other's items and bookkeeping; for example,
+two ``FifoDiskQueue`` objects on the same directory return the same items, and
+their ``close()`` calls may raise ``FileNotFoundError``.
+
+SQLite serializes access to its file, but ``pop()`` on a SQLite queue reads and
+deletes an item in separate steps, so concurrent queue objects on the same path
+may return the same item more than once.
 
 Persisting a PriorityQueue or a RoundRobinQueue
 -----------------------------------------------
