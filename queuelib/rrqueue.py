@@ -43,7 +43,7 @@ class RoundRobinQueue:
         self.qfactory = qfactory
         for key in start_domains:
             self.queues[key] = self.qfactory(key)
-        self.key_queue = deque(start_domains)
+        self.key_queue = deque(self.queues)
 
     def push(self, obj: Any, key: Hashable) -> None:
         if key not in self.key_queue:

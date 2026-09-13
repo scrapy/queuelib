@@ -236,3 +236,17 @@ class DummyPriorityQueueTest(QueuelibTestCase):
         assert len(q) == 0
         assert q.pop() is None
         assert not q.close()
+
+
+@pytest.mark.parametrize("priorities", [[], [3, 1, 2]])
+def test_start_priorities_iterator(priorities):
+    queues = {}
+    for priority in priorities:
+        queue = FifoMemoryQueue()
+        queue.push(priority)
+        queues[priority] = queue
+    queue = PriorityQueue(queues.__getitem__, iter(priorities))
+    assert len(queue) == len(priorities)
+    assert [queue.pop() for _ in priorities] == sorted(priorities)
+    assert queue.pop() is None
+    assert not queue.close()
