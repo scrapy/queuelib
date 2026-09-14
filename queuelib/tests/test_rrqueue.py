@@ -263,3 +263,17 @@ class DummyRRQueueTest(QueuelibTestCase):
         assert len(q) == 0
         assert q.pop() is None
         assert not q.close()
+
+
+@pytest.mark.parametrize("domains", [[], ["a", "b", "c"]])
+def test_start_domains_iterator(domains):
+    queues = {}
+    for domain in domains:
+        queue = FifoMemoryQueue()
+        queue.push(domain)
+        queues[domain] = queue
+    queue = RoundRobinQueue(queues.__getitem__, iter(domains))
+    assert len(queue) == len(domains)
+    assert [queue.pop() for _ in domains] == list(reversed(domains))
+    assert queue.pop() is None
+    assert not queue.close()
