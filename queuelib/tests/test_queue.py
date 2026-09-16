@@ -168,6 +168,18 @@ class FifoTestMixin:
         assert q.peek() is None
         q.close()
 
+    def test_push_after_peek(self):
+        q = self.queue()
+        q.push(b"a")
+        q.push(b"b")
+        assert q.peek() == b"a"
+        q.push(b"c")
+        assert q.pop() == b"a"
+        assert q.pop() == b"b"
+        assert q.pop() == b"c"
+        assert q.pop() is None
+        q.close()
+
 
 class LifoTestMixin:
     def test_push_pop1(self):
@@ -213,6 +225,18 @@ class LifoTestMixin:
         assert q.peek() == b"a"
         assert q.pop() == b"a"
         assert q.peek() is None
+        q.close()
+
+    def test_push_after_peek(self):
+        q = self.queue()
+        q.push(b"a")
+        q.push(b"b")
+        assert q.peek() == b"b"
+        q.push(b"c")
+        assert q.pop() == b"c"
+        assert q.pop() == b"b"
+        assert q.pop() == b"a"
+        assert q.pop() is None
         q.close()
 
 
