@@ -266,7 +266,9 @@ class LifoDiskQueue:
         self.f.seek(-self.SIZE_SIZE, os.SEEK_END)
         (size,) = struct.unpack(self.SIZE_FORMAT, self.f.read())
         self.f.seek(-size - self.SIZE_SIZE, os.SEEK_END)
-        return self.f.read(size)
+        data = self.f.read(size)
+        self.f.seek(0, os.SEEK_END)
+        return data
 
     def clear(self) -> None:
         self.f.seek(0)
