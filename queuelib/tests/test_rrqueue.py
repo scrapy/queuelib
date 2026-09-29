@@ -72,6 +72,7 @@ class RRQueueTestMixin:
     def test_pop_returns_falsy_items(self):
         self.q.push(b"", "a")
         assert len(self.q) == 1
+        assert self.q.peek() == b""
         assert self.q.pop() == b""
         assert len(self.q) == 0
         assert self.q.pop() is None
@@ -132,6 +133,17 @@ class LifoMemoryRRQueueTest(RRQueueTestMixin, LifoTestMixin, QueuelibTestCase):
 
 
 class DiskTestMixin:
+    def test_peek_after_failed_push(self):
+        with pytest.raises(TypeError):
+            self.q.push(lambda x: x, "empty")
+        self.q.push(b"next", "valid")
+        assert self.q.peek() == b"next"
+        assert self.q.peek() == b"next"
+        assert len(self.q) == 1
+        assert self.q.pop() == b"next"
+        assert self.q.peek() is None
+        assert not self.q.close()
+
     def test_nonserializable_object_one(self):
         with pytest.raises(TypeError):
             self.q.push(lambda x: x, "0")
@@ -198,6 +210,14 @@ class RRQueueStartDomainsTestMixin:
 
     def qfactory(self, key):
         raise NotImplementedError
+
+    def test_peek_skips_empty_start_domain(self):
+        self.q.push(b"next", "1")
+        assert self.q.peek() == b"next"
+        assert self.q.peek() == b"next"
+        assert len(self.q) == 1
+        assert self.q.pop() == b"next"
+        assert not self.q.close()
 
     def test_push_pop_peek_key(self):
         self.q.push(b"c", "1")

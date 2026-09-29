@@ -53,11 +53,11 @@ class RoundRobinQueue:
         q.push(obj)  # this may fail (eg. serialization error)
 
     def peek(self) -> Any | None:
-        try:
-            key = self.key_queue[-1]
-        except IndexError:
-            return None
-        return self.queues[key].peek()
+        for key in reversed(self.key_queue):
+            item = self.queues[key].peek()
+            if item is not None:
+                return item
+        return None
 
     def clear(self) -> None:
         for q in self.queues.values():
