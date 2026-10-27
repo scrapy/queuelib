@@ -244,10 +244,6 @@ def test_round_robin_queue_invariants(
             rr.close()
 
 
-@pytest.mark.xfail(
-    reason="PriorityQueue starts at the lowest startprios bucket even if it is empty",
-    strict=True,
-)
 @given(
     filled=st.dictionaries(PRIOS, st.lists(ITEMS, min_size=1, max_size=3)),
     extra=st.lists(PRIOS, max_size=4),

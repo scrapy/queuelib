@@ -44,7 +44,7 @@ class PriorityQueue:
         self.qfactory = qfactory
         for p in startprios:
             self.queues[p] = self.qfactory(p)
-        self.curprio = min(self.queues) if self.queues else None
+        self.curprio = min((p for p, q in self.queues.items() if len(q)), default=None)
 
     def push(self, obj: Any, priority: int = 0) -> None:
         if priority not in self.queues:

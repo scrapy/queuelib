@@ -69,6 +69,30 @@ class PQueueTestMixin:
         assert self.q.pop() == b"c"
         assert not self.q.close()
 
+    def test_start_priorities_skip_empty_buckets(self):
+        queues = {p: self.qfactory(p) for p in (-2, 0, 1, 2)}
+        queues[0].push(b"")
+        queues[2].push(b"later")
+        self.q = PriorityQueue(queues.__getitem__, startprios=iter(queues))
+        assert len(self.q) == 2
+        assert self.q.peek() == b""
+        assert self.q.peek() == b""
+        assert self.q.pop() == b""
+        assert self.q.peek() == b"later"
+        assert self.q.pop() == b"later"
+        assert self.q.pop() is None
+        assert not self.q.close()
+
+    def test_start_priorities_all_empty(self):
+        self.q = PriorityQueue(self.qfactory, startprios=iter((-2, 0, 1)))
+        assert len(self.q) == 0
+        assert self.q.peek() is None
+        assert self.q.pop() is None
+        self.q.push(b"new", 1)
+        assert self.q.peek() == b"new"
+        assert self.q.pop() == b"new"
+        assert not self.q.close()
+
     def test_popped_internal_queues_closed(self):
         self.q.push(b"a", 3)
         self.q.push(b"b", 1)
