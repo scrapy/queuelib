@@ -11,7 +11,8 @@ from queuelib.queue import (
     LifoSQLiteQueue,
 )
 from queuelib.rrqueue import RoundRobinQueue
-from queuelib.tests import DummyQueue, QueuelibTestCase, track_closed
+
+from . import DummyQueue, QueuelibTestCase, track_closed
 
 
 class RRQueueTestMixin:

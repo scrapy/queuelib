@@ -14,7 +14,8 @@ from queuelib import (
     LifoSQLiteQueue,
 )
 from queuelib.queue import BaseQueue
-from queuelib.tests import DummyQueue, QueuelibTestCase
+
+from . import DummyQueue, QueuelibTestCase
 
 
 class InterfaceTest(QueuelibTestCase):

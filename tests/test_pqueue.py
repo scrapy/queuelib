@@ -11,7 +11,8 @@ from queuelib.queue import (
     LifoMemoryQueue,
     LifoSQLiteQueue,
 )
-from queuelib.tests import DummyQueue, QueuelibTestCase, track_closed
+
+from . import DummyQueue, QueuelibTestCase, track_closed
 
 
 class PQueueTestMixin:
