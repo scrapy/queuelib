@@ -39,7 +39,9 @@ path = "queuelib/__init__.py"
 [tool.hatch.build.targets.sdist]
 include = [
     "/queuelib",
+    "/tests",
     "/NEWS",
+    "/tox.ini",
 ]
 
 [tool.bumpversion]
@@ -60,14 +62,14 @@ regex = true
 [tool.coverage.run]
 branch = true
 omit = [
-    "queuelib/tests/*",
+    "tests/*",
 ]
 
 [tool.mypy]
 strict = true
 
 [[tool.mypy.overrides]]
-module = "queuelib.tests.*"
+module = "tests.*"
 allow_untyped_defs = true
 check_untyped_defs = false
 

@@ -1,6 +1,8 @@
 htmlcov/
 coverage.xml
 /.coverage
+/.coverage.*
+*.junit.xml
 /.tox/
 *egg-info
 *.pyc

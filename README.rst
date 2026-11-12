@@ -331,23 +331,6 @@ GitHub (for some reason) you're welcome to send regular patches.
 
 All changes require tests to be merged.
 
-Tests
-=====
-
-Tests are located in `queuelib/tests` directory. They can be run using
-`nosetests`_ with the following command::
-
-    nosetests
-
-The output should be something like the following::
-
-    $ nosetests
-    .............................................................................
-    ----------------------------------------------------------------------
-    Ran 77 tests in 0.145s
-
-    OK
-
 License
 =======
 
