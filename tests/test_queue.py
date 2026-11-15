@@ -18,7 +18,7 @@ from queuelib.queue import BaseQueue
 from . import DummyQueue, QueuelibTestCase
 
 
-class InterfaceTest(QueuelibTestCase):
+class TestInterface(QueuelibTestCase):
     def test_queue(self):
         queue = BaseQueue()
         with pytest.raises(NotImplementedError):
@@ -326,17 +326,17 @@ class DirectoryTestMixin:
         assert unexpected_file.exists()
 
 
-class FifoMemoryQueueTest(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
+class TestFifoMemoryQueue(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return FifoMemoryQueue()
 
 
-class LifoMemoryQueueTest(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
+class TestLifoMemoryQueue(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
     def queue(self):
         return LifoMemoryQueue()
 
 
-class FifoDiskQueueTest(
+class TestFifoDiskQueue(
     FifoTestMixin,
     DirectoryTestMixin,
     PersistentTestMixin,
@@ -382,23 +382,23 @@ class FifoDiskQueueTest(
         q.close()
 
 
-class ChunkSize1FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize1FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 1
 
 
-class ChunkSize2FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize2FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 2
 
 
-class ChunkSize3FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize3FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 3
 
 
-class ChunkSize4FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize4FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 4
 
 
-class LifoDiskQueueTest(
+class TestLifoDiskQueue(
     LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
 ):
     def queue(self):
@@ -417,14 +417,14 @@ class LifoDiskQueueTest(
         assert self.qpath.stat().st_size, size
 
 
-class FifoSQLiteQueueTest(
+class TestFifoSQLiteQueue(
     FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
 ):
     def queue(self):
         return FifoSQLiteQueue(self.qpath)
 
 
-class LifoSQLiteQueueTest(
+class TestLifoSQLiteQueue(
     LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
 ):
     def queue(self):

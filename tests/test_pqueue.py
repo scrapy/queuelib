@@ -146,12 +146,12 @@ class LifoTestMixin:
         assert self.q.pop() is None
 
 
-class FifoMemoryPriorityQueueTest(PQueueTestMixin, FifoTestMixin, QueuelibTestCase):
+class TestFifoMemoryPriorityQueue(PQueueTestMixin, FifoTestMixin, QueuelibTestCase):
     def qfactory(self, prio):
         return track_closed(FifoMemoryQueue)()
 
 
-class LifoMemoryPriorityQueueTest(PQueueTestMixin, LifoTestMixin, QueuelibTestCase):
+class TestLifoMemoryPriorityQueue(PQueueTestMixin, LifoTestMixin, QueuelibTestCase):
     def qfactory(self, prio):
         return track_closed(LifoMemoryQueue)()
 
@@ -196,7 +196,7 @@ class DiskTestMixin:
         assert not q2.close()
 
 
-class FifoDiskPriorityQueueTest(
+class TestFifoDiskPriorityQueue(
     PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
@@ -204,7 +204,7 @@ class FifoDiskPriorityQueueTest(
         return track_closed(FifoDiskQueue)(path)
 
 
-class LifoDiskPriorityQueueTest(
+class TestLifoDiskPriorityQueue(
     PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
@@ -212,7 +212,7 @@ class LifoDiskPriorityQueueTest(
         return track_closed(LifoDiskQueue)(path)
 
 
-class FifoSQLitePriorityQueueTest(
+class TestFifoSQLitePriorityQueue(
     PQueueTestMixin, FifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
@@ -220,7 +220,7 @@ class FifoSQLitePriorityQueueTest(
         return track_closed(FifoSQLiteQueue)(path)
 
 
-class LifoSQLitePriorityQueueTest(
+class TestLifoSQLitePriorityQueue(
     PQueueTestMixin, LifoTestMixin, DiskTestMixin, QueuelibTestCase
 ):
     def qfactory(self, prio):
@@ -228,7 +228,7 @@ class LifoSQLitePriorityQueueTest(
         return track_closed(LifoSQLiteQueue)(path)
 
 
-class DummyPriorityQueueTest(QueuelibTestCase):
+class TestDummyPriorityQueue(QueuelibTestCase):
     def test_clear(self):
         q = PriorityQueue(lambda prio: DummyQueue())
         q.push(b"a", 1)
