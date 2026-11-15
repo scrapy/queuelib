@@ -34,7 +34,6 @@ class TestInterface(QueuelibTestCase):
     def test_issubclass(self):
         assert not issubclass(list, BaseQueue)
         assert not issubclass(int, BaseQueue)
-        assert not issubclass(QueuelibTestCase, BaseQueue)
         assert issubclass(DummyQueue, BaseQueue)
         assert issubclass(FifoMemoryQueue, BaseQueue)
         assert issubclass(LifoMemoryQueue, BaseQueue)

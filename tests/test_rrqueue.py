@@ -275,9 +275,9 @@ class TestLifoSQLiteRRQueueStartDomains(RRQueueStartDomainsTestMixin, QueuelibTe
         return track_closed(LifoSQLiteQueue)(path)
 
 
-class TestDummyRRQueue(QueuelibTestCase):
-    def test_clear(self):
-        q = RoundRobinQueue(lambda key: DummyQueue())
+class TestDummyRRQueue:
+    def test_clear(self) -> None:
+        q = RoundRobinQueue(lambda key: DummyQueue())  # type: ignore[arg-type,return-value]
         q.push(b"a", "1")
         q.push(b"b", "2")
         q.clear()

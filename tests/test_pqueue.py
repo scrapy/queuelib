@@ -228,9 +228,9 @@ class TestLifoSQLitePriorityQueue(
         return track_closed(LifoSQLiteQueue)(path)
 
 
-class TestDummyPriorityQueue(QueuelibTestCase):
-    def test_clear(self):
-        q = PriorityQueue(lambda prio: DummyQueue())
+class TestDummyPriorityQueue:
+    def test_clear(self) -> None:
+        q = PriorityQueue(lambda prio: DummyQueue())  # type: ignore[arg-type,return-value]
         q.push(b"a", 1)
         q.push(b"b", 2)
         q.clear()
