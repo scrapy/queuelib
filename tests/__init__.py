@@ -4,7 +4,23 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
+
+
+class ClearableQueue(Protocol):
+    """Static type of the queue classes that implement the optional clear()."""
+
+    def push(self, obj: Any, /) -> None: ...
+
+    def pop(self) -> Any | None: ...
+
+    def peek(self) -> Any | None: ...
+
+    def close(self) -> None: ...
+
+    def clear(self) -> None: ...
+
+    def __len__(self) -> int: ...
 
 
 class DummyQueue:
