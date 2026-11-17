@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from abc import abstractmethod
+from functools import partial
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -15,12 +16,18 @@ from queuelib import (
 )
 from queuelib.queue import BaseQueue
 
-from . import DummyQueue, QueuelibTestCase
+from . import DummyQueue
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
+    from . import ClearableQueue
 
 
-class InterfaceTest(QueuelibTestCase):
-    def test_queue(self):
-        queue = BaseQueue()
+class TestInterface:
+    def test_queue(self) -> None:
+        queue = BaseQueue()  # type: ignore[abstract]
         with pytest.raises(NotImplementedError):
             queue.push(b"")
         with pytest.raises(NotImplementedError):
@@ -31,10 +38,9 @@ class InterfaceTest(QueuelibTestCase):
             len(queue)
         queue.close()
 
-    def test_issubclass(self):
+    def test_issubclass(self) -> None:
         assert not issubclass(list, BaseQueue)
         assert not issubclass(int, BaseQueue)
-        assert not issubclass(QueuelibTestCase, BaseQueue)
         assert issubclass(DummyQueue, BaseQueue)
         assert issubclass(FifoMemoryQueue, BaseQueue)
         assert issubclass(LifoMemoryQueue, BaseQueue)
@@ -43,36 +49,32 @@ class InterfaceTest(QueuelibTestCase):
         assert issubclass(FifoSQLiteQueue, BaseQueue)
         assert issubclass(LifoSQLiteQueue, BaseQueue)
 
-    def test_isinstance(self):
+    def test_isinstance(self, tmp_path: Path) -> None:
         assert not isinstance(1, BaseQueue)
         assert not isinstance([], BaseQueue)
         assert isinstance(DummyQueue(), BaseQueue)
         assert isinstance(FifoMemoryQueue(), BaseQueue)
         assert isinstance(LifoMemoryQueue(), BaseQueue)
         for cls in [FifoDiskQueue, LifoDiskQueue, FifoSQLiteQueue, LifoSQLiteQueue]:
-            queue = cls(self.tempfilename())
+            queue = cls(tmp_path / cls.__name__)
             assert isinstance(queue, BaseQueue)
             queue.close()
 
 
 class QueueTestMixin:
-    @abstractmethod
-    def queue(self) -> BaseQueue:
-        raise NotImplementedError
-
-    def test_empty(self):
+    def test_empty(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Empty queue test"""
-        q = self.queue()
+        q = make_queue()
         assert q.pop() is None
         q.close()
 
-    def test_single_pushpop(self):
-        q = self.queue()
+    def test_single_pushpop(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         q.push(b"a")
         assert q.pop() == b"a"
         q.close()
 
-    def test_binary_element(self):
+    def test_binary_element(self, make_queue: Callable[[], ClearableQueue]) -> None:
         elem = (
             b"\x80\x02}q\x01(U\x04bodyq\x02U\x00U\t_encodingq\x03U\x05utf-"
             b"8q\x04U\x07cookiesq\x05}q\x06U\x04metaq\x07}q\x08U\x07header"
@@ -80,13 +82,13 @@ class QueueTestMixin:
             b"ont_filterq\x0b\x89U\x08priorityq\x0cK\x00U\x08callbackq\rNU"
             b"\x06methodq\x0eU\x03GETq\x0fU\x07errbackq\x10Nu."
         )
-        q = self.queue()
+        q = make_queue()
         q.push(elem)
         assert q.pop() == elem
         q.close()
 
-    def test_len(self):
-        q = self.queue()
+    def test_len(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         assert len(q) == 0
         q.push(b"a")
         assert len(q) == 1
@@ -99,8 +101,8 @@ class QueueTestMixin:
         assert len(q) == 0
         q.close()
 
-    def test_clear(self):
-        q = self.queue()
+    def test_clear(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         q.clear()
         assert len(q) == 0
         q.push(b"a")
@@ -113,8 +115,8 @@ class QueueTestMixin:
         assert q.pop() == b"c"
         q.close()
 
-    def test_peek_one_element(self):
-        q = self.queue()
+    def test_peek_one_element(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         assert q.peek() is None
         q.push(b"a")
         assert q.peek() == b"a"
@@ -124,9 +126,9 @@ class QueueTestMixin:
 
 
 class FifoTestMixin:
-    def test_push_pop1(self):
+    def test_push_pop1(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Basic push/pop test"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
@@ -136,9 +138,9 @@ class FifoTestMixin:
         assert q.pop() is None
         q.close()
 
-    def test_push_pop2(self):
+    def test_push_pop2(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Test interleaved push and pops"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
@@ -151,8 +153,8 @@ class FifoTestMixin:
         assert q.pop() == b"e"
         q.close()
 
-    def test_peek_fifo(self):
-        q = self.queue()
+    def test_peek_fifo(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         assert q.peek() is None
         q.push(b"a")
         q.push(b"b")
@@ -169,8 +171,8 @@ class FifoTestMixin:
         assert q.peek() is None
         q.close()
 
-    def test_push_after_peek(self):
-        q = self.queue()
+    def test_push_after_peek(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         assert q.peek() == b"a"
@@ -183,9 +185,9 @@ class FifoTestMixin:
 
 
 class LifoTestMixin:
-    def test_push_pop1(self):
+    def test_push_pop1(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Basic push/pop test"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
@@ -195,9 +197,9 @@ class LifoTestMixin:
         assert q.pop() is None
         q.close()
 
-    def test_push_pop2(self):
+    def test_push_pop2(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Test interleaved push and pops"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
@@ -210,8 +212,8 @@ class LifoTestMixin:
         assert q.pop() == b"a"
         q.close()
 
-    def test_peek_lifo(self):
-        q = self.queue()
+    def test_peek_lifo(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         assert q.peek() is None
         q.push(b"a")
         q.push(b"b")
@@ -228,8 +230,8 @@ class LifoTestMixin:
         assert q.peek() is None
         q.close()
 
-    def test_push_after_peek(self):
-        q = self.queue()
+    def test_push_after_peek(self, make_queue: Callable[[], ClearableQueue]) -> None:
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         assert q.peek() == b"b"
@@ -244,8 +246,10 @@ class LifoTestMixin:
 class PersistentTestMixin:
     chunksize = 100000
 
-    def test_non_bytes_raises_typeerror(self):
-        q = self.queue()
+    def test_non_bytes_raises_typeerror(
+        self, make_queue: Callable[[], ClearableQueue]
+    ) -> None:
+        q = make_queue()
         try:
             with pytest.raises(TypeError):
                 q.push(0)
@@ -258,19 +262,19 @@ class PersistentTestMixin:
         finally:
             q.close()
 
-    def test_text_in_windows(self):
+    def test_text_in_windows(self, make_queue: Callable[[], ClearableQueue]) -> None:
         e1 = b"\r\n"
-        q = self.queue()
+        q = make_queue()
         q.push(e1)
         q.close()
-        q = self.queue()
+        q = make_queue()
         e2 = q.pop()
         assert e1 == e2
         q.close()
 
-    def test_close_open(self):
+    def test_close_open(self, make_queue: Callable[[], ClearableQueue]) -> None:
         """Test closing and re-opening keeps state"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.push(b"c")
@@ -280,7 +284,7 @@ class PersistentTestMixin:
         q.close()
         del q
 
-        q = self.queue()
+        q = make_queue()
         assert len(q) == 2
         q.push(b"e")
         q.pop()
@@ -288,144 +292,153 @@ class PersistentTestMixin:
         q.close()
         del q
 
-        q = self.queue()
+        q = make_queue()
         assert q.pop() is not None
         assert len(q) == 0
         q.close()
 
-    def test_cleanup(self):
+    def test_cleanup(
+        self, make_queue: Callable[[], ClearableQueue], qpath: Path
+    ) -> None:
         """Test queue dir is removed if queue is empty"""
-        q = self.queue()
+        q = make_queue()
         values = [b"0", b"1", b"2", b"3", b"4"]
-        assert self.qpath.exists()
+        assert qpath.exists()
         for x in values:
             q.push(x)
 
         for _ in values:
             q.pop()
         q.close()
-        assert not self.qpath.exists()
+        assert not qpath.exists()
 
 
 class DirectoryTestMixin:
-    def test_cleanup_unclean(self):
+    def test_cleanup_unclean(
+        self, make_queue: Callable[[], ClearableQueue], qpath: Path
+    ) -> None:
         """Test queue dir is not removed if it contains unexpected content"""
-        q = self.queue()
+        q = make_queue()
         values = [b"0", b"1", b"2", b"3", b"4"]
-        assert self.qpath.exists()
+        assert qpath.exists()
         for x in values:
             q.push(x)
 
-        unexpected_file = self.qpath / "unexpected"
+        unexpected_file = qpath / "unexpected"
         unexpected_file.touch()
 
         for _ in values:
             q.pop()
         q.close()
-        assert self.qpath.exists()
+        assert qpath.exists()
         assert unexpected_file.exists()
 
 
-class FifoMemoryQueueTest(FifoTestMixin, QueueTestMixin, QueuelibTestCase):
-    def queue(self):
-        return FifoMemoryQueue()
+class TestFifoMemoryQueue(FifoTestMixin, QueueTestMixin):
+    @pytest.fixture
+    def make_queue(self) -> Callable[[], FifoMemoryQueue]:
+        return FifoMemoryQueue
 
 
-class LifoMemoryQueueTest(LifoTestMixin, QueueTestMixin, QueuelibTestCase):
-    def queue(self):
-        return LifoMemoryQueue()
+class TestLifoMemoryQueue(LifoTestMixin, QueueTestMixin):
+    @pytest.fixture
+    def make_queue(self) -> Callable[[], LifoMemoryQueue]:
+        return LifoMemoryQueue
 
 
-class FifoDiskQueueTest(
+class TestFifoDiskQueue(
     FifoTestMixin,
     DirectoryTestMixin,
     PersistentTestMixin,
     QueueTestMixin,
-    QueuelibTestCase,
 ):
-    def queue(self):
-        return FifoDiskQueue(self.qpath, chunksize=self.chunksize)
+    @pytest.fixture
+    def make_queue(self, qpath: Path) -> Callable[[], FifoDiskQueue]:
+        return partial(FifoDiskQueue, qpath, chunksize=self.chunksize)
 
-    def test_not_szhdr(self):
-        q = self.queue()
+    def test_not_szhdr(
+        self, make_queue: Callable[[], FifoDiskQueue], tmp_path: Path
+    ) -> None:
+        q = make_queue()
         q.push(b"something")
         with (
-            self.tempfilename().open("w+") as empty_file,
+            (tmp_path / "empty").open("w+") as empty_file,
             mock.patch.object(q, "tailf", empty_file),
         ):
             assert q.peek() is None
             assert q.pop() is None
         q.close()
 
-    def test_chunks(self):
+    def test_chunks(self, make_queue: Callable[[], FifoDiskQueue], qpath: Path) -> None:
         """Test chunks are created and removed"""
         values = [b"0", b"1", b"2", b"3", b"4"]
-        q = self.queue()
+        q = make_queue()
         for x in values:
             q.push(x)
 
-        chunks = list(self.qpath.glob("q*"))
+        chunks = list(qpath.glob("q*"))
         assert len(chunks) == 5 // self.chunksize + 1
         for _ in values:
             q.pop()
 
-        chunks = list(self.qpath.glob("q*"))
+        chunks = list(qpath.glob("q*"))
         assert len(chunks) == 1
         q.close()
 
-    def test_clear_removes_chunks(self):
-        q = self.queue()
+    def test_clear_removes_chunks(
+        self, make_queue: Callable[[], FifoDiskQueue], qpath: Path
+    ) -> None:
+        q = make_queue()
         for x in [b"0", b"1", b"2", b"3", b"4"]:
             q.push(x)
         q.clear()
-        assert list(self.qpath.glob("q*")) == [self.qpath / "q00000"]
+        assert list(qpath.glob("q*")) == [qpath / "q00000"]
         q.close()
 
 
-class ChunkSize1FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize1FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 1
 
 
-class ChunkSize2FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize2FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 2
 
 
-class ChunkSize3FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize3FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 3
 
 
-class ChunkSize4FifoDiskQueueTest(FifoDiskQueueTest):
+class TestChunkSize4FifoDiskQueue(TestFifoDiskQueue):
     chunksize = 4
 
 
-class LifoDiskQueueTest(
-    LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
-):
-    def queue(self):
-        return LifoDiskQueue(self.qpath)
+class TestLifoDiskQueue(LifoTestMixin, PersistentTestMixin, QueueTestMixin):
+    @pytest.fixture
+    def make_queue(self, qpath: Path) -> Callable[[], LifoDiskQueue]:
+        return partial(LifoDiskQueue, qpath)
 
-    def test_file_size_shrinks(self):
+    def test_file_size_shrinks(
+        self, make_queue: Callable[[], LifoDiskQueue], qpath: Path
+    ) -> None:
         """Test size of queue file shrinks when popping items"""
-        q = self.queue()
+        q = make_queue()
         q.push(b"a")
         q.push(b"b")
         q.close()
-        size = self.qpath.stat().st_size
-        q = self.queue()
+        size = qpath.stat().st_size
+        q = make_queue()
         q.pop()
         q.close()
-        assert self.qpath.stat().st_size, size
+        assert qpath.stat().st_size, size
 
 
-class FifoSQLiteQueueTest(
-    FifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
-):
-    def queue(self):
-        return FifoSQLiteQueue(self.qpath)
+class TestFifoSQLiteQueue(FifoTestMixin, PersistentTestMixin, QueueTestMixin):
+    @pytest.fixture
+    def make_queue(self, qpath: Path) -> Callable[[], FifoSQLiteQueue]:
+        return partial(FifoSQLiteQueue, qpath)
 
 
-class LifoSQLiteQueueTest(
-    LifoTestMixin, PersistentTestMixin, QueueTestMixin, QueuelibTestCase
-):
-    def queue(self):
-        return LifoSQLiteQueue(self.qpath)
+class TestLifoSQLiteQueue(LifoTestMixin, PersistentTestMixin, QueueTestMixin):
+    @pytest.fixture
+    def make_queue(self, qpath: Path) -> Callable[[], LifoSQLiteQueue]:
+        return partial(LifoSQLiteQueue, qpath)
